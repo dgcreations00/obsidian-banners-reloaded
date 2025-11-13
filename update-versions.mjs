@@ -18,7 +18,7 @@ try {
   process.exit(1);
 }
 
-const manifestPath = 'public/manifest.json';
+const manifestPath = 'manifest.json';
 try {
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
   manifest.version = newVersion;
