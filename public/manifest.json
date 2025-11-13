@@ -1,0 +1,11 @@
+{
+  "id": "banners-reloaded",
+  "name": "Banners Reloaded",
+  "description": "A simple, fast, and lightweight way to add customizable banners to your notes.",
+  "author": "Dani García",
+  "authorUrl": "https://github.com/dgcreations00",
+  "fundingUrl": "https://ko-fi.com/dgcreations00",
+  "version": "1.0.0",
+  "minAppVersion": "1.4.0",
+  "isDesktopOnly": false
+}

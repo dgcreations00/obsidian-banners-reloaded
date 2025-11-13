@@ -1,0 +1,67 @@
+name: New Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.1).'
+        required: true
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '18'
+
+      - name: Get version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+          fi
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Update Package Manifest and Versions
+        run: npm run update-versions -- ${{ env.VERSION }}
+
+      - name: Build plugin
+        run: npm run build
+
+      - name: Commit and push updated package.json manifest.json and versions.json
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json public/manifest.json versions.json
+          git diff --staged --quiet || git commit -m "chore: Bump version to ${{ env.VERSION }}"
+          git push
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: '${{ env.VERSION }}'
+          name: '${{ env.VERSION }}'
+          body: 'Release ${{ env.VERSION }}'
+          draft: false
+          prerelease: false
+          files: |
+            dist/main.js
+            dist/styles.css
+            public/manifest.json
