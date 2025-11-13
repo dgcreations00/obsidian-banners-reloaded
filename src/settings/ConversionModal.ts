@@ -1,16 +1,16 @@
 import { Modal, Notice, Setting } from 'obsidian';
-import type MyPlugin from '../main';
+import type BannersReloaded from '../main';
 import { t } from '../i18n';
 
 export class ConversionModal extends Modal {
-  plugin: MyPlugin;
+  plugin: BannersReloaded;
   private progressBar: HTMLDivElement;
   private progressText: HTMLSpanElement;
   private logContainer: HTMLDivElement;
   private startButton: HTMLButtonElement;
   private closeButton: HTMLButtonElement;
 
-  constructor(plugin: MyPlugin) {
+  constructor(plugin: BannersReloaded) {
     super(plugin.app);
     this.plugin = plugin;
   }

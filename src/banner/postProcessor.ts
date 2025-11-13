@@ -1,6 +1,6 @@
 import { MarkdownPostProcessorContext } from 'obsidian';
-import type MyPlugin from '../main';
+import type BannersReloaded from '../main';
 
-export const postProcessorCallback = (plugin: MyPlugin, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+export const postProcessorCallback = (plugin: BannersReloaded, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
   plugin.bannerManager.processEmbed(el, ctx);
 };

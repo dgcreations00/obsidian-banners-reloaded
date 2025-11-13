@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Import manifest for plugin configuration
-import manifest from './public/manifest.json' with { type: 'json' };
+import manifest from './manifest.json' with { type: 'json' };
 
 // Plugin configuration
 const PLUGIN_PATH = path.join('dev-vault', '.obsidian', 'plugins', manifest.id);

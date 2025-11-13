@@ -1,7 +1,7 @@
 import { App, MarkdownView, TFile, WorkspaceLeaf, Platform, MarkdownPostProcessorContext } from 'obsidian';
 import { mount, unmount, SvelteComponent } from 'svelte';
 import Banner from './BannerComponent.svelte';
-import type { MyPluginSettings } from '../settings/settings';
+import type { BannersReloadedSettings } from '../settings/settings';
 import { t } from '../i18n';
 
 function debounce<T extends (...args: never[]) => never>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -16,13 +16,13 @@ const BANNER_APPLIED_CLASS = 'banner-plugin-applied';
 
 export class BannerManager {
   private app: App;
-  private settings: MyPluginSettings;
+  private settings: BannersReloadedSettings;
   private leafBannerMap = new Map<WorkspaceLeaf, { banner: SvelteComponent; wrapper: HTMLElement }>();
   private embeddedBannerMap = new Map<string, { banner: SvelteComponent; wrapper: HTMLElement }>();
 
   private scheduleLeafUpdate: (leaf: WorkspaceLeaf) => void;
 
-  constructor(app: App, settings: MyPluginSettings) {
+  constructor(app: App, settings: BannersReloadedSettings) {
     this.app = app;
     this.settings = settings;
     this.scheduleLeafUpdate = debounce(this._updateBannerForLeaf.bind(this), 100);
