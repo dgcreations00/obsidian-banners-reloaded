@@ -13,7 +13,7 @@ export default class BannersReloaded extends Plugin {
     loadLanguage();
 
     const startTime = performance.now();
-    console.log(t('PLUGIN_LOAD_START').replace('{0}', this.manifest.version));
+    console.info(t('PLUGIN_LOAD_START').replace('{0}', this.manifest.version));
 
     await this.loadSettings();
     this.bannerManager = new BannerManager(this.app, this.settings);
@@ -53,7 +53,7 @@ export default class BannersReloaded extends Plugin {
 
     const endTime = performance.now();
     const durationInSeconds = (endTime - startTime) / 1000;
-    console.log(
+    console.info(
       t('PLUGIN_LOAD_SUCCESS').replace('{0}', this.manifest.version).replace('{1}', durationInSeconds.toFixed(3)),
     );
   }

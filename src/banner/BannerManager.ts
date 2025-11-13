@@ -161,7 +161,7 @@ export class BannerManager {
           onSavePosition: embedType
             ? () => {}
             : (event) => {
-                this.saveBannerPosition(file, otherProps.positionProperty, event.y);
+                void this.saveBannerPosition(file, otherProps.positionProperty, event.y);
               },
         },
       }) as SvelteComponent;
@@ -180,7 +180,7 @@ export class BannerManager {
   private removeBannerFromLeaf(leaf: WorkspaceLeaf) {
     const entry = this.leafBannerMap.get(leaf);
     if (!entry) return;
-    unmount(entry.banner);
+    void unmount(entry.banner);
     entry.wrapper.remove();
     this.leafBannerMap.delete(leaf);
   }
@@ -188,7 +188,7 @@ export class BannerManager {
   private removeBannerFromEmbed(docId: string) {
     const entry = this.embeddedBannerMap.get(docId);
     if (!entry) return;
-    unmount(entry.banner);
+    void unmount(entry.banner);
     entry.wrapper.remove();
     this.embeddedBannerMap.delete(docId);
   }

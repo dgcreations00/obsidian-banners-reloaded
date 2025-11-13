@@ -3,10 +3,11 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import svelte from 'eslint-plugin-svelte';
+import { defineConfig } from 'eslint/config';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 
-export default tseslint.config(
+export default defineConfig(
   {
     ignores: ['build/', 'dist/', '.svelte-kit/', 'node_modules/', 'dev-vault/'],
   },

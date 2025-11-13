@@ -174,10 +174,12 @@ export class BannerSettingTab extends PluginSettingTab {
       .setDesc(t('SETTINGS_DEFAULT_BANNER_IMAGE_DESC'))
       .addButton((button) => {
         button.setButtonText(t('SETTINGS_SELECT_IMAGE_BUTTON')).onClick(() => {
-          new BannerSuggestModal(this.plugin, async (result) => {
-            this.plugin.settings.defaultBannerPath = result;
-            await this.plugin.saveSettings();
-            this.display();
+          new BannerSuggestModal(this.plugin, (result) => {
+            void (async () => {
+              this.plugin.settings.defaultBannerPath = result;
+              await this.plugin.saveSettings();
+              this.display();
+            })();
           }).open();
         });
       });
@@ -402,7 +404,7 @@ export class BannerSettingTab extends PluginSettingTab {
       settingEl.addClass('is-draggable');
 
       settingEl.addEventListener('dragstart', (event) => {
-        event.dataTransfer!.setData('text/plain', index.toString());
+        event.dataTransfer.setData('text/plain', index.toString());
         settingEl.addClass('is-dragging');
       });
 
@@ -420,17 +422,19 @@ export class BannerSettingTab extends PluginSettingTab {
         dragOverElement = settingEl;
       });
 
-      settingEl.addEventListener('drop', async (event) => {
-        event.preventDefault();
-        const fromIndex = parseInt(event.dataTransfer!.getData('text/plain'), 10);
-        const toIndex = index;
+      settingEl.addEventListener('drop', (event) => {
+        void (async () => {
+          event.preventDefault();
+          const fromIndex = parseInt(event.dataTransfer.getData('text/plain'), 10);
+          const toIndex = index;
 
-        if (fromIndex !== toIndex) {
-          const [movedRule] = this.plugin.settings.tagBanners.splice(fromIndex, 1);
-          this.plugin.settings.tagBanners.splice(toIndex, 0, movedRule);
-          await this.plugin.saveSettings();
-          this.display();
-        }
+          if (fromIndex !== toIndex) {
+            const [movedRule] = this.plugin.settings.tagBanners.splice(fromIndex, 1);
+            this.plugin.settings.tagBanners.splice(toIndex, 0, movedRule);
+            await this.plugin.saveSettings();
+            this.display();
+          }
+        })();
       });
 
       setting.setDesc(rule.path || t('SETTINGS_NO_BANNER_SELECTED'));
@@ -444,14 +448,18 @@ export class BannerSettingTab extends PluginSettingTab {
           });
       });
 
-      setting.addButton((button) => {
-        button.setButtonText(t('SETTINGS_SELECT_IMAGE_BUTTON')).onClick(() => {
-          new BannerSuggestModal(this.plugin, async (result) => {
-            rule.path = result;
-            await this.plugin.saveSettings();
-            this.display();
-          }).open();
-        });
+      setting.addButton(button => {
+        button
+          .setButtonText(t('SETTINGS_SELECT_IMAGE_BUTTON'))
+          .onClick(() => {
+            new BannerSuggestModal(this.plugin, (result) => {
+              void (async () => {
+                rule.path = result;
+                await this.plugin.saveSettings();
+                this.display();
+              })();
+            }).open();
+          });
       });
 
       setting.addExtraButton((button) => {
