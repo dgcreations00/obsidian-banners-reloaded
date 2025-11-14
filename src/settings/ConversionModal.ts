@@ -52,27 +52,38 @@ export class ConversionModal extends Modal {
     this.closeButton.disabled = true;
     this.startButton.setText(t('MODAL_CONVERSION_IN_PROGRESS_BUTTON'));
     this.logContainer.empty();
-
+    
     new Notice(t('MODAL_CONVERSION_IN_PROGRESS_NOTICE'));
     const wikilinkRegex = /(?:!\[\[|\[\[)(.*?)(?:\]\])/;
     const fmProperty = this.plugin.settings.frontmatterProperty;
     let updatedFiles = 0;
-
+    
     const files = this.app.vault.getMarkdownFiles();
     const totalFiles = files.length;
 
     for (let i = 0; i < totalFiles; i++) {
       const file = files[i];
       let fileModified = false;
-
+      
       try {
         await this.app.fileManager.processFrontMatter(file, (fm) => {
-          if (fmProperty in fm && typeof fm[fmProperty] === 'string') {
+          if (fmProperty in fm) {
             const fmValue = fm[fmProperty];
-            const match = fmValue.match(wikilinkRegex);
+            let newValue: string | null = null;
 
-            if (match && match[1]) {
-              fm[fmProperty] = match[1].trim();
+            if (typeof fmValue === 'string') {
+              const match = fmValue.match(wikilinkRegex);
+              if (match && match[1]) {
+                newValue = match[1].trim();
+              }
+            } else if (Array.isArray(fmValue)) {
+              const pathFromArray = fmValue?.[0]?.[0];
+              if (typeof pathFromArray === 'string') {
+                newValue = pathFromArray;
+              }
+            }            
+            if (newValue !== null) {
+              fm[fmProperty] = newValue;
               fileModified = true;
             }
           }

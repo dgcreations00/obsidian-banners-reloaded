@@ -198,17 +198,25 @@ export class BannerManager {
     const fmProperty = this.settings.frontmatterProperty;
 
     if (fmProperty in frontmatter) {
-      let fmValue = frontmatter[fmProperty];
+      const fmValue = frontmatter[fmProperty];
+      let finalPath: string | null = null;
 
       if (typeof fmValue === 'string') {
         const wikilinkMatch = fmValue.match(/(?:!\[\[|\[\[)(.*?)(?:\]\])/);
         if (wikilinkMatch && wikilinkMatch[1]) {
-          fmValue = wikilinkMatch[1].trim();
+          finalPath = wikilinkMatch[1].trim();
+        } else {
+          finalPath = fmValue;
+        }
+      } else if (Array.isArray(fmValue)) {
+        const pathFromArray = fmValue?.[0]?.[0];
+        if (typeof pathFromArray === 'string') {
+          finalPath = pathFromArray;
         }
       }
 
-      if (fmValue && fmValue !== 'false' && fmValue !== 'none') {
-        return fmValue as string;
+      if (finalPath && finalPath !== 'false' && finalPath !== 'none') {
+        return finalPath;
       }
       return null;
     }
