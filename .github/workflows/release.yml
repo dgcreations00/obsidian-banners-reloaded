@@ -41,6 +41,9 @@ jobs:
       - name: Update Package Manifest and Versions
         run: npm run update-versions -- ${{ env.VERSION }}
 
+      - name: Sync package-lock.json
+        run: npm install
+
       - name: Build plugin
         run: npm run build
 
@@ -48,7 +51,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add package.json manifest.json versions.json
+          git add package.json package-lock.json manifest.json versions.json
           git diff --staged --quiet || git commit -m "chore: Bump version to ${{ env.VERSION }}"
           git push
 
