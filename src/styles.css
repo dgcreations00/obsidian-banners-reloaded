@@ -1,10 +1,10 @@
-@import 'tailwindcss';
+@import "tailwindcss/utilities";
 
-.cm-scroller {
+body.banners-plugin-active .cm-scroller {
   flex-direction: column;
 }
-.markdown-preview-view > .banner-wrapper,
-.cm-scroller > .banner-wrapper {
+body.banners-plugin-active .markdown-preview-view > .banner-wrapper,
+body.banners-plugin-active .cm-scroller > .banner-wrapper {
   --banner-page-margin: var(--file-margins);
   width: calc(100% + 2 * var(--banner-page-margin));
   margin-top: calc(-1 * var(--banner-page-margin));
@@ -12,8 +12,8 @@
   margin-right: calc(-1 * var(--banner-page-margin));
   margin-bottom: var(--banner-page-margin);
 }
-.is-mobile .markdown-preview-view > .banner-wrapper,
-.is-mobile .cm-scroller > .banner-wrapper {
+.is-mobile.banners-plugin-active .markdown-preview-view > .banner-wrapper,
+.is-mobile.banners-plugin-active .cm-scroller > .banner-wrapper {
   --banner-page-margin: var(--size-4-5);
   margin-top: calc(-1 * var(--size-4-2));
 }

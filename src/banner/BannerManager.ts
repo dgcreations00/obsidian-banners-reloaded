@@ -13,6 +13,7 @@ function debounce<T extends (...args: never[]) => never>(func: T, wait: number):
 }
 
 const BANNER_APPLIED_CLASS = 'banner-plugin-applied';
+const BODY_CLASS = 'banners-plugin-active';
 
 export class BannerManager {
   private app: App;
@@ -78,41 +79,39 @@ export class BannerManager {
   public destroyAllBanners() {
     for (const leaf of this.leafBannerMap.keys()) this.removeBannerFromLeaf(leaf);
     for (const docId of this.embeddedBannerMap.keys()) this.removeBannerFromEmbed(docId);
+    
+    document.body.classList.remove(BODY_CLASS);
   }
 
   private _updateBannerForLeaf(leaf: WorkspaceLeaf) {
-    if (!(leaf.view instanceof MarkdownView)) return;
+    if (!(leaf.view instanceof MarkdownView)) {
+      document.body.classList.remove(BODY_CLASS);
+      return;
+    }
+    
     if (this.leafBannerMap.has(leaf)) {
       this.removeBannerFromLeaf(leaf);
     }
+    
     const file = leaf.view.file;
     if (!file) return;
 
-    const view = leaf?.view;
-    let container: HTMLElement | null = null;
-
-    if (view.getMode() === 'preview') {
-      container = leaf.view.previewMode.containerEl.querySelector('.markdown-preview-view');
-    } else {
-      container = leaf.view.contentEl.querySelector<HTMLElement>('.markdown-preview-view, .cm-scroller');
-    }
-
-    if (!container) {
-      console.error(t('ERROR_NO_CONTAINER'));
-      return;
-    }
-
+    const container = leaf.view.contentEl;
     this.createBanner(leaf, file, container, false);
   }
 
-  private createBanner(
-    key: WorkspaceLeaf | string,
-    file: TFile,
-    container: HTMLElement,
-    embedType: 'embed' | 'popover' | false,
-  ) {
+  private createBanner(key: WorkspaceLeaf | string, file: TFile, container: HTMLElement, embedType: 'embed' | 'popover' | false) {
+    if (!embedType) {
+      document.body.classList.add(BODY_CLASS);
+    }
+
     const bannerPath = this.getBannerPath(file);
-    if (!bannerPath) return;
+    if (!bannerPath) {
+      if (!embedType) {
+        document.body.classList.remove(BODY_CLASS);
+      }
+      return;
+    }
 
     const headerData = this.getHeaderData(file);
     const otherProps = this.getOtherBannerProps(file, !!embedType);
@@ -183,6 +182,8 @@ export class BannerManager {
     void unmount(entry.banner);
     entry.wrapper.remove();
     this.leafBannerMap.delete(leaf);
+
+    document.body.classList.remove(BODY_CLASS);
   }
 
   private removeBannerFromEmbed(docId: string) {
