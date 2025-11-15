@@ -43,6 +43,7 @@
   }
 
   function handleMouseDown(event: MouseEvent) {
+    if (!bannerContainer) return;
     event.preventDefault();
     isDragging = true;
     startMouseY = event.clientY;
@@ -51,7 +52,7 @@
     window.addEventListener('mouseup', handleMouseUp);
   }
   function handleMouseMove(event: MouseEvent) {
-    if (!isDragging) return;
+    if (!isDragging || !bannerContainer) return;
     const deltaY = event.clientY - startMouseY;
     const deltaPercent = (deltaY / bannerContainer.clientHeight) * 100;
     const newY = startImageY - deltaPercent;
