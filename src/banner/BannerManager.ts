@@ -25,7 +25,7 @@ export class BannerManager {
   constructor(app: App, settings: BannersReloadedSettings) {
     this.app = app;
     this.settings = settings;
-    this.scheduleLeafUpdate = debounce(this._updateBannerForLeaf.bind(this), 100);
+    this.scheduleLeafUpdate = debounce(this._updateBannerForLeafNow.bind(this), 100);
   }
 
   public updateBannerForLeaf(leaf: WorkspaceLeaf | null) {
@@ -71,7 +71,9 @@ export class BannerManager {
 
   public refreshAllBanners() {
     this.destroyAllBanners();
-    this.app.workspace.getLeavesOfType('markdown').forEach((leaf) => this.updateBannerForLeaf(leaf));
+    this.app.workspace.getLeavesOfType('markdown').forEach((leaf) => {
+      this._updateBannerForLeafNow(leaf);
+    });
     this.app.workspace.updateOptions();
   }
 
@@ -80,11 +82,16 @@ export class BannerManager {
     for (const docId of this.embeddedBannerMap.keys()) this.removeBannerFromEmbed(docId);
   }
 
-  private _updateBannerForLeaf(leaf: WorkspaceLeaf) {
-    if (!(leaf.view instanceof MarkdownView)) return;
+  private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
+    if (!(leaf.view instanceof MarkdownView)) {
+      document.body.classList.remove('banners-plugin-active');
+      return;
+    }
+    
     if (this.leafBannerMap.has(leaf)) {
       this.removeBannerFromLeaf(leaf);
     }
+    
     const file = leaf.view.file;
     if (!file) return;
 
@@ -92,13 +99,13 @@ export class BannerManager {
     let container: HTMLElement | null = null;
 
     if (view.getMode() === 'preview') {
-      container = leaf.view.previewMode.containerEl.querySelector('.markdown-preview-view');
+      container = view.previewMode.containerEl.querySelector('.markdown-preview-view');
     } else {
-      container = leaf.view.contentEl.querySelector<HTMLElement>('.markdown-preview-view, .cm-scroller');
+      container = view.contentEl.querySelector<HTMLElement>('.markdown-preview-view, .cm-scroller');
     }
 
     if (!container) {
-      console.error(t('ERROR_NO_CONTAINER'));
+      console.error(t("ERROR_NO_CONTAINER"));
       return;
     }
 
