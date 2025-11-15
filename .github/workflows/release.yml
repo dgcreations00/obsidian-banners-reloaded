@@ -6,9 +6,6 @@ on:
       version:
         description: 'Release version (e.g., 1.0.1).'
         required: true
-  push:
-    tags:
-      - '*'
 
 jobs:
   build:
@@ -20,21 +17,34 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
           node-version: '18'
 
-      - name: Get version
-        id: get_version
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-          else
-            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-          fi
+      - name: Get new version from input
+        run: echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          echo "Generando changelog desde ${{ env.LATEST_TAG }}..."
+          CHANGELOG_BODY=$(git log ${{ env.LATEST_TAG }}..HEAD --pretty=format:"* %s (%h)")
+          {
+            echo "CHANGELOG<<EOF"
+            echo "${CHANGELOG_BODY}"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+          
       - name: Install dependencies
         run: npm install
 
@@ -47,13 +57,20 @@ jobs:
       - name: Build plugin
         run: npm run build
 
-      - name: Commit and push updated package.json manifest.json and versions.json
+      - name: Commit and Tag version bump
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add package.json package-lock.json manifest.json versions.json
-          git diff --staged --quiet || git commit -m "chore: Bump version to ${{ env.VERSION }}"
-          git push
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: Bump version to ${{ env.VERSION }}"
+          fi
+          git tag ${{ env.VERSION }}
+
+      - name: Push commit and tag
+        run: |
+          git push origin
+          git push origin --tags
 
       - name: Create Release
         id: create_release
@@ -61,7 +78,7 @@ jobs:
         with:
           tag_name: '${{ env.VERSION }}'
           name: '${{ env.VERSION }}'
-          body: 'Release ${{ env.VERSION }}'
+          body: ${{ env.CHANGELOG }}
           draft: false
           prerelease: false
           files: |
