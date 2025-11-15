@@ -305,10 +305,6 @@ private getHeaderData(file: TFile): {
 
     return template.replace(regex, (_match, propertyName: string) => {
       const prop = propertyName.trim();
-
-      if (prop === 'title') {
-        return file.basename;
-      }
       
       const getFrontmatterValue = (key: string): string | null => {
         if (key in frontmatter) {
