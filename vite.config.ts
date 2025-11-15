@@ -34,9 +34,22 @@ export default defineConfig(({ mode }) => {
       },
     },
   };
-
+  const copyManifestPlugin: Plugin = {
+    name: 'copy-manifest',
+    writeBundle: {
+      sequential: true,
+      order: 'post',
+      handler: () => {
+        if (!inProd) {
+          const manifestSourcePath = path.resolve(__dirname, 'manifest.json');
+          const manifestDestPath = path.join(PLUGIN_PATH, 'manifest.json');
+          fs.copyFileSync(manifestSourcePath, manifestDestPath);
+        }
+      },
+    },
+  };
   return {
-    plugins: [svelte(), tailwindcss(), hotReloadPlugin],
+    plugins: [svelte(), tailwindcss(), hotReloadPlugin, copyManifestPlugin],
     resolve: {
       alias: {
         '@modules': path.resolve(__dirname, './src/modules'),
