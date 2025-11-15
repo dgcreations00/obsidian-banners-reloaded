@@ -37,6 +37,7 @@ export interface BannersReloadedSettings {
   showInPopovers: boolean;
   tagBanners: TagBannerRule[];
   bannerFolder: string;
+  headerTitleFallback: string;
 }
 
 export const DEFAULT_SETTINGS: BannersReloadedSettings = {
@@ -59,6 +60,7 @@ export const DEFAULT_SETTINGS: BannersReloadedSettings = {
   showInPopovers: true,
   tagBanners: [],
   bannerFolder: '',
+  headerTitleFallback: 'title',
 };
 
 const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg'];
@@ -240,7 +242,7 @@ export class BannerSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }),
       );
-
+        
     new Setting(containerEl)
       .setName(t('SETTINGS_ENABLE_DEFAULT_HEADER_ICON_NAME'))
       .setDesc(t('SETTINGS_ENABLE_DEFAULT_HEADER_ICON_DESC'))
@@ -262,6 +264,18 @@ export class BannerSettingTab extends PluginSettingTab {
             this.plugin.settings.defaultHeaderText = value;
             await this.plugin.saveSettings();
           }),
+      );
+
+    new Setting(containerEl)
+      .setName(t('SETTINGS_HEADER_FALLBACK_NAME'))
+      .setDesc(t('SETTINGS_HEADER_FALLBACK_DESC'))
+      .addText(text => text
+        .setPlaceholder(t('SETTINGS_HEADER_FALLBACK_PLACEHOLDER'))
+        .setValue(this.plugin.settings.headerTitleFallback)
+        .onChange(async (value) => {
+          this.plugin.settings.headerTitleFallback = value.trim();
+          await this.plugin.saveSettings();
+        })
       );
 
     new Setting(containerEl)

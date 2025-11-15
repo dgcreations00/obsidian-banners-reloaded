@@ -13,7 +13,6 @@ function debounce<T extends (...args: never[]) => never>(func: T, wait: number):
 }
 
 const BANNER_APPLIED_CLASS = 'banner-plugin-applied';
-const BODY_CLASS = 'banners-plugin-active';
 
 export class BannerManager {
   private app: App;
@@ -79,39 +78,41 @@ export class BannerManager {
   public destroyAllBanners() {
     for (const leaf of this.leafBannerMap.keys()) this.removeBannerFromLeaf(leaf);
     for (const docId of this.embeddedBannerMap.keys()) this.removeBannerFromEmbed(docId);
-    
-    document.body.classList.remove(BODY_CLASS);
   }
 
   private _updateBannerForLeaf(leaf: WorkspaceLeaf) {
-    if (!(leaf.view instanceof MarkdownView)) {
-      document.body.classList.remove(BODY_CLASS);
-      return;
-    }
-    
+    if (!(leaf.view instanceof MarkdownView)) return;
     if (this.leafBannerMap.has(leaf)) {
       this.removeBannerFromLeaf(leaf);
     }
-    
     const file = leaf.view.file;
     if (!file) return;
 
-    const container = leaf.view.contentEl;
+    const view = leaf?.view;
+    let container: HTMLElement | null = null;
+
+    if (view.getMode() === 'preview') {
+      container = leaf.view.previewMode.containerEl.querySelector('.markdown-preview-view');
+    } else {
+      container = leaf.view.contentEl.querySelector<HTMLElement>('.markdown-preview-view, .cm-scroller');
+    }
+
+    if (!container) {
+      console.error(t('ERROR_NO_CONTAINER'));
+      return;
+    }
+
     this.createBanner(leaf, file, container, false);
   }
 
-  private createBanner(key: WorkspaceLeaf | string, file: TFile, container: HTMLElement, embedType: 'embed' | 'popover' | false) {
-    if (!embedType) {
-      document.body.classList.add(BODY_CLASS);
-    }
-
+  private createBanner(
+    key: WorkspaceLeaf | string,
+    file: TFile,
+    container: HTMLElement,
+    embedType: 'embed' | 'popover' | false,
+  ) {
     const bannerPath = this.getBannerPath(file);
-    if (!bannerPath) {
-      if (!embedType) {
-        document.body.classList.remove(BODY_CLASS);
-      }
-      return;
-    }
+    if (!bannerPath) return;
 
     const headerData = this.getHeaderData(file);
     const otherProps = this.getOtherBannerProps(file, !!embedType);
@@ -182,8 +183,6 @@ export class BannerManager {
     void unmount(entry.banner);
     entry.wrapper.remove();
     this.leafBannerMap.delete(leaf);
-
-    document.body.classList.remove(BODY_CLASS);
   }
 
   private removeBannerFromEmbed(docId: string) {
@@ -244,8 +243,8 @@ export class BannerManager {
     return null;
   }
 
-  private getHeaderData(file: TFile): {
-    text?: string;
+private getHeaderData(file: TFile): { 
+    text?: string; 
     icon?: string;
     hAlign: 'left' | 'center' | 'right';
     vAlign: 'top' | 'center' | 'bottom' | 'edge';
@@ -255,35 +254,31 @@ export class BannerManager {
   } {
     const frontmatter = this.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
     const fmProperty = this.settings.frontmatterProperty;
-
+    
     const textProperty = `${fmProperty}_header`;
     const iconProperty = `${fmProperty}_icon`;
 
-    let text: string | undefined;
+    let textTemplate: string | undefined;
     let icon: string | undefined;
 
     if (textProperty in frontmatter) {
       const fmValue = frontmatter[textProperty];
       if (fmValue && fmValue !== 'false' && fmValue !== 'none') {
-        text = fmValue;
+        textTemplate = fmValue as string;
       }
     } else if (this.settings.showDefaultHeaderText) {
-      text = this.settings.defaultHeaderText;
+      textTemplate = this.settings.defaultHeaderText;
     }
 
     if (iconProperty in frontmatter) {
       const fmValue = frontmatter[iconProperty];
-      if (fmValue && fmValue !== 'false' && fmValue !== 'none') {
-        icon = fmValue;
-      }
+      if (fmValue && fmValue !== 'false' && fmValue !== 'none') icon = fmValue as string;
     } else if (this.settings.showDefaultHeaderIcon) {
       icon = this.settings.defaultHeaderIcon;
     }
 
-    if (text && text.includes('{{title}}')) {
-      text = text.replace(/{{title}}/g, file.basename);
-    }
-
+    const text = this.processHeaderTemplate(textTemplate, frontmatter, file);
+    
     const hAlignProperty = `${fmProperty}_header_h_align`;
     const vAlignProperty = `${fmProperty}_header_v_align`;
     const decorProperty = `${fmProperty}_header_decor`;
@@ -293,12 +288,47 @@ export class BannerManager {
     const hAlign = frontmatter[hAlignProperty] || this.settings.headerHorizontalAlign;
     const vAlign = frontmatter[vAlignProperty] || this.settings.headerVerticalAlign;
     const decor = frontmatter[decorProperty] || this.settings.headerDecor;
-    const titleSize = frontmatter[titleSizeProperty] || this.settings.headerTitleSize;
-    const iconSize = frontmatter[iconSizeProperty] || this.settings.headerIconSize;
+    const titleSize = (frontmatter[titleSizeProperty] as string) || this.settings.headerTitleSize;
+    const iconSize = (frontmatter[iconSizeProperty] as string) || this.settings.headerIconSize;
 
     return { text, icon, hAlign, vAlign, decor, titleSize, iconSize };
   }
 
+  private processHeaderTemplate(
+    template: string | undefined, 
+    frontmatter: Record<string, unknown>,
+    file: TFile
+  ): string | undefined {
+    if (!template) return undefined;
+
+    const regex = /\{\{(.*?)\}\}/g;
+
+    return template.replace(regex, (_match, propertyName: string) => {
+      const prop = propertyName.trim();
+      
+      const getFrontmatterValue = (key: string): string | null => {
+        if (key in frontmatter) {
+          const value = frontmatter[key];
+          if (value) {
+            if (Array.isArray(value)) return value.join(', ');
+            return String(value);
+          }
+        }
+        return null;
+      };
+
+      let result = getFrontmatterValue(prop);
+      if (result !== null) return result;
+      
+      const fallbackProp = this.settings.headerTitleFallback;
+      if (fallbackProp) {
+        result = getFrontmatterValue(fallbackProp);
+        if (result !== null) return result;
+      }
+      
+      return file.basename;
+    });
+  }
   private getOtherBannerProps(file: TFile, isEmbed: boolean) {
     const frontmatter = this.app.metadataCache.getFileCache(file)?.frontmatter;
     const fmProperty = this.settings.frontmatterProperty;
