@@ -317,7 +317,16 @@ private getHeaderData(file: TFile): {
         if (key in frontmatter) {
           const value = frontmatter[key];
           if (value) {
-            if (Array.isArray(value)) return value.join(', ');
+            if (Array.isArray(value)) {
+              return value.map(item => {
+                if (item === null || item === undefined) return '';
+                if (typeof item === 'object') return '';
+                return String(item);
+              }).filter(Boolean).join(', ');
+            }
+            if (typeof value === 'object' && value !== null) {
+              return null;
+            }
             return String(value);
           }
         }
