@@ -308,34 +308,41 @@ private getHeaderData(file: TFile): {
   ): string | undefined {
     if (!template) return undefined;
 
+    let processedTemplate = template;
     const regex = /\{\{(.*?)\}\}/g;
 
-    return template.replace(regex, (_match, propertyName: string) => {
-      const prop = propertyName.trim();
-      
-      const getFrontmatterValue = (key: string): string | null => {
-        if (key in frontmatter) {
-          const value = frontmatter[key];
+    const maxIterations = 10;
+    let currentIteration = 0;
+
+    while (regex.test(processedTemplate) && currentIteration < maxIterations) {
+
+      processedTemplate = processedTemplate.replace(regex, (match, propertyName: string) => {
+        const prop = propertyName.trim();
+
+        if (prop === 'filename') {
+          return file.basename;
+        }
+
+        if (prop in frontmatter) {
+          const value = frontmatter[prop];
           const valueType = typeof value;
+
           if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
             return String(value);
           }
         }
-        return null;
-      };
-
-      let result = getFrontmatterValue(prop);
-      if (result !== null) return result;
-      
-      const fallbackProp = this.settings.headerTitleFallback;
-      if (fallbackProp) {
-        result = getFrontmatterValue(fallbackProp);
-        if (result !== null) return result;
-      }
-      
-      return file.basename;
-    });
+        return match;
+      });
+      currentIteration++;
+    }
+    if (currentIteration === maxIterations) {
+      console.warn(
+        `[Banners Reloaded] Template processing reached the iteration limit. There might be a circular reference in your frontmatter tags (e.g., title: "{{author}}" and author: "{{title}}").`
+      );
+    }
+    return processedTemplate;
   }
+
   private getOtherBannerProps(file: TFile, isEmbed: boolean) {
     const frontmatter = this.app.metadataCache.getFileCache(file)?.frontmatter;
     const fmProperty = this.settings.frontmatterProperty;
