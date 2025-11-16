@@ -31,7 +31,7 @@ Banners Reloaded offers a simple, fast, and lightweight way to add beautiful and
 - **Powerful Banner Hierarchy:** Control which banner is displayed with a clear priority: **Specific Note > Tag Banner > Global Banner**.
 - **Interactive Vertical Alignment:** Vertically drag any banner to focus on the perfect part of the image. The position is automatically saved to the note's frontmatter.
 - **Overlay Headers:** Add titles and icons over your banners, with full control over their vertical and horizontal alignment, decoration, and size.
-- **Dynamic Content:** Use `{{title}}` in headers to automatically display the note's name.
+- **Powerful Header Templating:** Dynamically display content in your headers. Use {{filename}} for the note's name, or insert any frontmatter property like {{status}} or {{author}}. It even resolves nested variables (e.g., if your frontmatter has title: "Project {{project_name}}").
 - **Tag-Based Rules:** Associate banner images with specific tags. It even supports nested tags (`#family/project`)! Rules at the top of the settings list have higher priority.
 - **Adaptive Design:** Set different banner heights for desktop, mobile, and embed/popover contexts.
 - **Full Context Support:** Banners work in the main note view, in note **embeds**, and in link preview **popovers**.
@@ -87,7 +87,7 @@ Access the settings via `Settings > Community Plugins > Banners Reloaded`.
 - **Title font size:** The default CSS font size for the header text.
 - **Icon size:** The default CSS size for the header icon/emoji.
 - **Default icon:** An Obsidian icon ID (e.g., `lucide-book`) or an emoji.
-- **Default header text:** The default text. Use `{{title}}` to dynamically insert the note's name.
+- **Default header text:** A template for the text that appears on the banner. You can use {{filename}} to insert the note's name, or {{your_property}} to use any value from the note's frontmatter. Nested variables are also supported.
 
 ### Additional Contexts
 
@@ -142,6 +142,11 @@ banner_icon: false
 # Priority 1: Specific banner for this note (can be local or remote)
 banner: "https://images.unsplash.com/photo-1506744038136-46273834b3fb"
 
+# Custom frontmatter data for the template
+status: "In Progress"
+project_name: "Obsidian Plugin"
+title: "Notes on {{project_name}}" # Nested variable!
+
 # Height override (ignores default values)
 banner_height: "300px"
 banner_mobile_height: "150px"
@@ -149,9 +154,9 @@ banner_mobile_height: "150px"
 # Vertical position override (dragging the image updates this)
 banner_y: "75%"
 
-# Header override (ignores default headers)
+# Header override using a template
 banner_icon: "lucide-star"
-banner_header: "Project Status: {{title}}"
+banner_header: "{{title}} - Status: {{status}}"
 
 # Header alignment, style, and SIZE override
 banner_header_v: "center"
@@ -173,7 +178,7 @@ Below are all the properties you can use, assuming the prefix in the settings is
 - `banner_height`: CSS height for the banner in this note (applies to desktop, embeds, and popovers).
 - `banner_mobile_height`: Specific CSS height for this note on mobile.
 - `banner_y`: The vertical position of the image (from `0%` to `100%`). This is updated when you drag the image.
-- `banner_header`: The text to display in the header. To **disable**, use: `banner_header: false` or `banner_header: none`.
+- `banner_header`: The text to display in the header. Supports templates: use {{filename}} for the note's name or {{any_frontmatter_key}} to insert metadata. Nested variables are resolved. To disable, use: `banner_header: false` or `banner_header: none`.
 - `banner_icon`: An emoji or Obsidian icon ID to display. To **disable**, use: `banner_icon: false` or `banner_icon: none`.
 - `banner_header_v`: Vertical alignment of the header. Values: `top`, `center`, `bottom`, `edge`.
 - `banner_header_h`: Horizontal alignment. Values: `left`, `center`, `right`.

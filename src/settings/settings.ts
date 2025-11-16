@@ -267,18 +267,6 @@ export class BannerSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName(t('SETTINGS_HEADER_FALLBACK_NAME'))
-      .setDesc(t('SETTINGS_HEADER_FALLBACK_DESC'))
-      .addText(text => text
-        .setPlaceholder(t('SETTINGS_HEADER_FALLBACK_PLACEHOLDER'))
-        .setValue(this.plugin.settings.headerTitleFallback)
-        .onChange(async (value) => {
-          this.plugin.settings.headerTitleFallback = value.trim();
-          await this.plugin.saveSettings();
-        })
-      );
-
-    new Setting(containerEl)
       .setName(t('SETTINGS_DEFAULT_HEADER_ICON_NAME'))
       .setDesc(t('SETTINGS_DEFAULT_HEADER_ICON_DESC'))
       .addText((text) =>
