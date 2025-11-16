@@ -324,10 +324,15 @@ private getHeaderData(file: TFile): {
 
         if (prop in frontmatter) {
           const value = frontmatter[prop];
-          const valueType = typeof value;
 
-          if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
-            return `${value}`;
+          if (typeof value === 'string') {
+            return value;
+          }
+          if (typeof value === 'number') {
+            return value.toString();
+          }
+          if (typeof value === 'boolean') {
+            return value.toString();
           }
         }
         
@@ -338,7 +343,7 @@ private getHeaderData(file: TFile): {
 
     if (currentIteration === maxIterations) {
       console.warn(
-        `[Banners Reloaded] Template processing reached the iteration limit. There might be a circular reference in your frontmatter tags (e.g., title: "{{author}}" and author: "{{title}}").`
+        `[Banners Reloaded] Template processing reached the iteration limit...`
       );
     }
 
