@@ -314,8 +314,7 @@ private getHeaderData(file: TFile): {
     const maxIterations = 10;
     let currentIteration = 0;
 
-    while (regex.test(processedTemplate) && currentIteration < maxIterations) {
-
+    while (processedTemplate.match(regex) && currentIteration < maxIterations) {
       processedTemplate = processedTemplate.replace(regex, (match, propertyName: string) => {
         const prop = propertyName.trim();
 
@@ -328,18 +327,21 @@ private getHeaderData(file: TFile): {
           const valueType = typeof value;
 
           if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
-            return String(value);
+            return `${value}`;
           }
         }
+        
         return match;
       });
       currentIteration++;
     }
+
     if (currentIteration === maxIterations) {
       console.warn(
         `[Banners Reloaded] Template processing reached the iteration limit. There might be a circular reference in your frontmatter tags (e.g., title: "{{author}}" and author: "{{title}}").`
       );
     }
+
     return processedTemplate;
   }
 
