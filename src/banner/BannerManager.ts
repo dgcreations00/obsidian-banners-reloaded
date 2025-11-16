@@ -5,7 +5,7 @@ import type { BannersReloadedSettings } from '../settings/settings';
 import { t } from '../i18n';
 
 function debounce<T extends (...args: never[]) => never>(func: T, wait: number): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout;
+  let timeout: ReturnType<typeof setTimeout>;
   return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(this, args), wait);
