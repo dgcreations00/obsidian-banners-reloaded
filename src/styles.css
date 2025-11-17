@@ -108,3 +108,23 @@
   text-align: center;
   margin-bottom: 1em;
 }
+
+/* === Minimal Theme Fixes=== */
+
+body.minimal-theme .markdown-source-view.mod-cm6.is-readable-line-width .cm-scroller > .banner-wrapper {
+  width: 100%;
+}
+body.minimal-theme .hover-popover .markdown-preview-view .banner-wrapper.is-popover-embed {
+  --popover-padding: var(--size-4-6, 24px);
+  width: calc(100% + 2 * var(--popover-padding));
+  margin-left: calc(-1 * var(--popover-padding));
+  margin-right: calc(-1 * var(--popover-padding));
+  margin-top: calc(-1 * var(--popover-padding));
+ 
+}
+body.minimal-theme .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable .banner-image {
+  cursor: grab;
+}
+body.minimal-theme .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable.is-dragging .banner-image {
+  cursor: grabbing;
+}
