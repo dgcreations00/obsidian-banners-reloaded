@@ -16,6 +16,7 @@
   export let headerDecor: 'none' | 'shadow' | 'border' = 'shadow';
   export let headerTitleSize: string = '1.2em';
   export let headerIconSize: string = '1.5em';
+  export let isDraggable: boolean = true;
 
   let isDragging = false;
   let startMouseY: number;
@@ -43,6 +44,7 @@
   }
 
   function handleMouseDown(event: MouseEvent) {
+    if (!isDraggable) return;
     if (!bannerContainer) return;
     event.preventDefault();
     isDragging = true;
@@ -140,11 +142,18 @@
     height: 100%;
     object-fit: cover;
     user-select: none;
+    cursor: default;
   }
   .is-draggable {
     cursor: grab;
   }
+  .is-draggable .banner-image {
+    cursor: grab;
+  }
   .is-draggable.is-dragging {
+    cursor: grabbing;
+  }
+  .is-draggable.is-dragging .banner-image {
     cursor: grabbing;
   }
 </style>

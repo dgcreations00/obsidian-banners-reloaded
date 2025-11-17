@@ -82,34 +82,42 @@ export class BannerManager {
     for (const docId of this.embeddedBannerMap.keys()) this.removeBannerFromEmbed(docId);
   }
 
-  private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
-    if (!(leaf.view instanceof MarkdownView)) {
-      document.body.classList.remove('banners-plugin-active');
-      return;
-    }
-    
-    if (this.leafBannerMap.has(leaf)) {
-      this.removeBannerFromLeaf(leaf);
-    }
-    
-    const file = leaf.view.file;
-    if (!file) return;
-
-    const view = leaf?.view;
-    let container: HTMLElement | null = null;
-
-    if (view.getMode() === 'preview') {
-      container = view.previewMode.containerEl.querySelector('.markdown-preview-view');
-    } else {
-      container = view.contentEl.querySelector<HTMLElement>('.markdown-preview-view, .cm-scroller');
-    }
-
-    if (!container) {
-      console.error(t("ERROR_NO_CONTAINER"));
-      return;
-    }
-
-    this.createBanner(leaf, file, container, false);
+private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
+    // La solución: envolver la lógica en un setTimeout para darle tiempo a Obsidian
+    // a renderizar el DOM de la nueva vista antes de intentar añadir el banner.
+    setTimeout(() => {
+      // Es buena práctica volver a comprobar que la vista sigue siendo válida,
+      // por si el usuario ha hecho algo rápido en esos milisegundos.
+      if (!(leaf.view instanceof MarkdownView)) {
+        document.body.classList.remove('banners-plugin-active');
+        return;
+      }
+      
+      if (this.leafBannerMap.has(leaf)) {
+        this.removeBannerFromLeaf(leaf);
+      }
+      
+      const file = leaf.view.file;
+      if (!file) return;
+  
+      const view = leaf.view; // No es necesario el '?.' porque ya hemos comprobado arriba
+      let container: HTMLElement | null = null;
+  
+      if (view.getMode() === 'preview') {
+        container = view.previewMode.containerEl.querySelector('.markdown-preview-view');
+      } else {
+        container = view.contentEl.querySelector<HTMLElement>('.markdown-preview-view, .cm-scroller');
+      }
+  
+      if (!container) {
+        // Podríamos mantener el error, pero es mejor que falle silenciosamente si el contenedor
+        // sigue sin aparecer en casos extraños, para no molestar al usuario.
+        // console.error(t("ERROR_NO_CONTAINER")); 
+        return;
+      }
+  
+      this.createBanner(leaf, file, container, false);
+    }, 50); // Un retraso de 50ms es pequeño pero generalmente suficiente.
   }
 
   private createBanner(
@@ -162,6 +170,7 @@ export class BannerManager {
           headerDecor: headerData.decor,
           headerTitleSize: headerData.titleSize,
           headerIconSize: headerData.iconSize,
+          isDraggable: !embedType,
           onLayoutChange: (event) => {
             wrapper.style.marginBottom = event.marginBottom;
           },
