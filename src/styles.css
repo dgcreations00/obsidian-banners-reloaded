@@ -120,4 +120,11 @@ body.minimal-theme .hover-popover .markdown-preview-view .banner-wrapper.is-popo
   margin-left: calc(-1 * var(--popover-padding));
   margin-right: calc(-1 * var(--popover-padding));
   margin-top: calc(-1 * var(--popover-padding));
+ 
+}
+body.minimal-theme .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable .banner-image {
+  cursor: grab;
+}
+body.minimal-theme .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable.is-dragging .banner-image {
+  cursor: grabbing;
 }
