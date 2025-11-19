@@ -156,3 +156,6 @@ body.banners-reloaded-minimal-fix .workspace-leaf-content[data-type="markdown"] 
 body.banners-reloaded-minimal-fix .hover-popover .banner-container:not(.is-draggable) .banner-image {
   cursor: default;
 }
+body.banners-reloaded-minimal-fix .workspace-leaf-content .view-content .internal-embed .banner-wrapper .banner-container:not(.is-draggable) img.banner-image {
+  cursor: default;
+}
