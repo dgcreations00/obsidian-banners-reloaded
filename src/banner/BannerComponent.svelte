@@ -72,7 +72,8 @@
 
 {#if imagePath}
   <div
-    class="banner-container is-draggable"
+    class="banner-container"
+    class:is-draggable={isDraggable}
     class:is-dragging={isDragging}
     bind:this={bannerContainer}
     on:mousedown={handleMouseDown}
