@@ -40,7 +40,7 @@ Banners Reloaded offers a simple, fast, and lightweight way to add beautiful and
     - Define a banner folder to narrow down searches.
     - Enjoy folder autocompletion in the settings.
     - Reorder the priority of tag banners with drag-and-drop.
-- **Migration Tool:** Includes a tool to easily convert the banner format from other plugins (`[[wikilink]]` or `![[wikilink]]` format) to the plain string format.
+- **Migration Tool:** Includes a tool to easily standardize your vault by converting banner paths from plain strings or embeds to the standard Wikilink format `[[image.png]]`.
 
 ## Installation
 
@@ -105,16 +105,31 @@ This section allows you to create rules to assign banners to notes containing ce
 
 ### Maintenance
 
-- **Banner conversion tool:** Opens a modal that will search your entire vault and convert banner properties from `[[wikilink]]` or `![[wikilink]]` format to the plain string format (`path/to/image.png`). This is useful for cleaning up your vault or migrating from other plugins.
+- **Banner conversion tool:** Opens a modal that will search your entire vault and convert banner properties to the standard Wikilink format `[[path/to/image.png]]`. This is useful for standardizing your vault or migrating from plugins that used plain strings or embeds.
 
 ## Per-Note Usage (Frontmatter Overrides)
 
 You can override almost any global setting directly in a note's YAML frontmatter. Use the `Frontmatter Property` name you defined in the settings as a prefix.
 
 **Simple Example:**
+Using wikilinks (recommended)
+```yaml
+---
+banner: "[[Banners/my-local-banner.png]]"
+---
+```
+
+Using file path as string
 ```yaml
 ---
 banner: "Banners/my-local-banner.png"
+---
+```
+
+Using remote images
+```yaml
+---
+banner: "https://images.unsplash.com/photo-1506744038136-46273834b3fb"
 ---
 ```
 
@@ -130,7 +145,7 @@ banner: none
 (If a global header or icon is active)
 ```yaml
 ---
-banner: "Banners/my-local-banner.png"
+banner: "[[Banners/my-local-banner.png]]"
 banner_header: false
 banner_icon: false
 ---
@@ -140,7 +155,7 @@ banner_icon: false
 ```yaml
 ---
 # Priority 1: Specific banner for this note (can be local or remote)
-banner: "https://images.unsplash.com/photo-1506744038136-46273834b3fb"
+banner: "[[Banners/my-local-banner.png]]"
 
 # Custom frontmatter data for the template
 status: "In Progress"
@@ -172,7 +187,8 @@ banner_header_icon_size: "3em"
 Below are all the properties you can use, assuming the prefix in the settings is `banner`.
 
 - `banner`: The path to the banner image.
-    - Accepts local paths: `"Banners/my_image.png"`
+    - Accepts local paths (Wikilinks): `"[[Banners/my_image.png]]"`
+    - Accepts local paths (Strings): `"Banners/my_image.png"`
     - Accepts external URLs: `"https://example.com/image.jpg"`
     - To **disable** a banner, use: `banner: false` or `banner: none`.
 - `banner_height`: CSS height for the banner in this note (applies to desktop, embeds, and popovers).
