@@ -109,22 +109,50 @@
   margin-bottom: 1em;
 }
 
-/* === Minimal Theme Fixes=== */
+/* === MINIMAL THEME FIXES=== */
 
-body.minimal-theme .markdown-source-view.mod-cm6.is-readable-line-width .cm-scroller > .banner-wrapper {
+/* Readable line length on*/
+body.banners-reloaded-minimal-fix .markdown-source-view.mod-cm6.is-readable-line-width .cm-scroller > .banner-wrapper,
+body.banners-reloaded-minimal-fix .markdown-preview-view.is-readable-line-width > .banner-wrapper {
+  --banner-padding-y: var(--size-4-4, 8px);
   width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: calc(-1 * var(--banner-padding-y));
 }
-body.minimal-theme .hover-popover .markdown-preview-view .banner-wrapper.is-popover-embed {
+/* Readable line length off */
+body.banners-reloaded-minimal-fix .markdown-preview-view:not(.is-readable-line-width) > .banner-wrapper,
+body.banners-reloaded-minimal-fix .markdown-source-view.mod-cm6:not(.is-readable-line-width) .cm-scroller > .banner-wrapper {
+  --banner-padding-x: var(--size-4-12, 48px);
+  --banner-padding-y: var(--size-4-2, 8px);
+  width: calc(100% + 2 * var(--banner-padding-x));
+  margin-left: calc(-1 * var(--banner-padding-x));
+  margin-right: calc(-1 * var(--banner-padding-x));
+  margin-top: calc(-1 * var(--banner-padding-y));
+}
+/* Popover fix */
+body.banners-reloaded-minimal-fix .hover-popover .markdown-preview-view .banner-wrapper.is-popover-embed {
   --popover-padding: var(--size-4-6, 24px);
   width: calc(100% + 2 * var(--popover-padding));
   margin-left: calc(-1 * var(--popover-padding));
   margin-right: calc(-1 * var(--popover-padding));
   margin-top: calc(-1 * var(--popover-padding));
- 
 }
-body.minimal-theme .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable .banner-image {
+/* Embed fix */
+body.banners-reloaded-minimal-fix .markdown-preview-view .internal-embed .banner-wrapper.is-real-embed,
+body.banners-reloaded-minimal-fix .markdown-source-view.mod-cm6 .internal-embed .banner-wrapper.is-real-embed {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+}
+/* Cursor fix */
+body.banners-reloaded-minimal-fix .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable .banner-image {
   cursor: grab;
 }
-body.minimal-theme .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable.is-dragging .banner-image {
+body.banners-reloaded-minimal-fix .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable.is-dragging .banner-image {
   cursor: grabbing;
+}
+body.banners-reloaded-minimal-fix .hover-popover .banner-container:not(.is-draggable) .banner-image {
+  cursor: default;
 }
