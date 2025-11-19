@@ -69,22 +69,33 @@ export class ConversionModal extends Modal {
         await this.app.fileManager.processFrontMatter(file, (fm) => {
           if (fmProperty in fm) {
             const fmValue = fm[fmProperty];
-            let newValue: string | null = null;
+            let cleanPath: string | null = null;
 
             if (typeof fmValue === 'string') {
               const match = fmValue.match(wikilinkRegex);
               if (match && match[1]) {
-                newValue = match[1].trim();
+                cleanPath = match[1].trim();
+              } else {
+                cleanPath = fmValue.trim();
               }
             } else if (Array.isArray(fmValue)) {
               const pathFromArray = fmValue?.[0]?.[0];
               if (typeof pathFromArray === 'string') {
-                newValue = pathFromArray;
+                cleanPath = pathFromArray.trim();
               }
-            }            
-            if (newValue !== null) {
-              fm[fmProperty] = newValue;
-              fileModified = true;
+            }
+
+            if (cleanPath) {
+              if (cleanPath === 'false' || cleanPath === 'none' || cleanPath.startsWith('http')) {
+                  return; 
+              }
+
+              const newValue = `[[${cleanPath}]]`;
+
+              if (fmValue !== newValue) {
+                fm[fmProperty] = newValue;
+                fileModified = true;
+              }
             }
           }
         });
