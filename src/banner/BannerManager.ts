@@ -83,11 +83,7 @@ export class BannerManager {
   }
 
 private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
-    // La solución: envolver la lógica en un setTimeout para darle tiempo a Obsidian
-    // a renderizar el DOM de la nueva vista antes de intentar añadir el banner.
     setTimeout(() => {
-      // Es buena práctica volver a comprobar que la vista sigue siendo válida,
-      // por si el usuario ha hecho algo rápido en esos milisegundos.
       if (!(leaf.view instanceof MarkdownView)) {
         document.body.classList.remove('banners-plugin-active');
         return;
@@ -100,7 +96,7 @@ private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
       const file = leaf.view.file;
       if (!file) return;
   
-      const view = leaf.view; // No es necesario el '?.' porque ya hemos comprobado arriba
+      const view = leaf.view;
       let container: HTMLElement | null = null;
   
       if (view.getMode() === 'preview') {
@@ -110,14 +106,11 @@ private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
       }
   
       if (!container) {
-        // Podríamos mantener el error, pero es mejor que falle silenciosamente si el contenedor
-        // sigue sin aparecer en casos extraños, para no molestar al usuario.
-        // console.error(t("ERROR_NO_CONTAINER")); 
         return;
       }
   
       this.createBanner(leaf, file, container, false);
-    }, 50); // Un retraso de 50ms es pequeño pero generalmente suficiente.
+    }, 50);
   }
 
   private createBanner(
@@ -126,15 +119,16 @@ private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
     container: HTMLElement,
     embedType: 'embed' | 'popover' | false,
   ) {
-    const bannerPath = this.getBannerPath(file);
-    if (!bannerPath) return;
+    const bannerData = this.getBannerPath(file);
+    if (!bannerData) return;
 
     const headerData = this.getHeaderData(file);
     const otherProps = this.getOtherBannerProps(file, !!embedType);
     let imageUrl: string | null;
     let errorMessage: string | undefined;
 
-    const result = this.getImageUrl(bannerPath);
+    const result = this.getImageUrl(bannerData);
+    
     if (result.success) {
       imageUrl = result.url;
     } else {
@@ -209,32 +203,43 @@ private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
     this.embeddedBannerMap.delete(docId);
   }
 
-  private getBannerPath(file: TFile): string | null {
+  private getBannerPath(file: TFile): { path: string; file: TFile | null } | null {
     const frontmatter = this.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
     const fmProperty = this.settings.frontmatterProperty;
 
     if (fmProperty in frontmatter) {
       const fmValue = frontmatter[fmProperty];
-      let finalPath: string | null = null;
+      let rawPath: string | null = null;
 
       if (typeof fmValue === 'string') {
         const wikilinkMatch = fmValue.match(/(?:!\[\[|\[\[)(.*?)(?:\]\])/);
         if (wikilinkMatch && wikilinkMatch[1]) {
-          finalPath = wikilinkMatch[1].trim();
+          rawPath = wikilinkMatch[1].trim();
         } else {
-          finalPath = fmValue;
+          rawPath = fmValue.trim();
         }
       } else if (Array.isArray(fmValue)) {
         const pathFromArray = fmValue?.[0]?.[0];
         if (typeof pathFromArray === 'string') {
-          finalPath = pathFromArray;
+          rawPath = pathFromArray.trim();
         }
       }
 
-      if (finalPath && finalPath !== 'false' && finalPath !== 'none') {
-        return finalPath;
+      if (rawPath && rawPath !== 'false' && rawPath !== 'none') {
+        if (rawPath.startsWith('http://') || rawPath.startsWith('https://')) {
+          return { path: rawPath, file: null };
+        }
+
+        const resolvedFile = this.app.metadataCache.getFirstLinkpathDest(rawPath, file.path);
+        
+        if (resolvedFile) {
+          return { path: resolvedFile.path, file: resolvedFile };
+        }
+        
+        return { path: rawPath, file: null };
       }
-      return null;
+      
+      if (rawPath === 'false' || rawPath === 'none') return null;
     }
 
     const tagsInFrontmatter = frontmatter.tags;
@@ -246,14 +251,16 @@ private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
           if (typeof tagString !== 'string') continue;
           const potentialMatches = [tagString, ...tagString.split('/')];
           if (potentialMatches.some((part) => part.toLowerCase() === rule.tag.toLowerCase())) {
-            return rule.path;
+            const resolvedFile = this.app.metadataCache.getFirstLinkpathDest(rule.path, file.path);
+            return { path: rule.path, file: resolvedFile };
           }
         }
       }
     }
 
     if (this.settings.enableBanners && this.settings.defaultBannerPath) {
-      return this.settings.defaultBannerPath;
+       const resolvedFile = this.app.metadataCache.getFirstLinkpathDest(this.settings.defaultBannerPath, file.path);
+       return { path: this.settings.defaultBannerPath, file: resolvedFile };
     }
 
     return null;
@@ -391,20 +398,27 @@ private getHeaderData(file: TFile): {
     return { isEmbed: false };
   }
 
-  private getImageUrl(
-    bannerPath: string,
+private getImageUrl(
+    bannerData: { path: string; file: TFile | null },
   ): { success: true; url: string; error: null } | { success: false; error: string } {
-    if (bannerPath.startsWith('http://') || bannerPath.startsWith('https://')) {
-      return { success: true, url: bannerPath, error: null };
+    const { path, file } = bannerData;
+
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return { success: true, url: path, error: null };
     }
 
-    const bannerFile = this.app.vault.getAbstractFileByPath(bannerPath);
-    if (bannerFile instanceof TFile) {
-      const url = this.app.vault.adapter.getResourcePath(bannerFile.path);
+    if (file instanceof TFile) {
+      const url = this.app.vault.adapter.getResourcePath(file.path);
       return { success: true, url: url, error: null };
     }
 
-    return { success: false, error: t('ERROR_INVALID_LOCAL_IMAGE').replace('{0}', bannerPath) };
+    const fallbackFile = this.app.vault.getAbstractFileByPath(path);
+    if (fallbackFile instanceof TFile) {
+      const url = this.app.vault.adapter.getResourcePath(fallbackFile.path);
+      return { success: true, url: url, error: null };
+    }
+
+    return { success: false, error: t('ERROR_INVALID_LOCAL_IMAGE').replace('{0}', path) };
   }
 
   private async saveBannerPosition(file: TFile, property: string, value: string) {
