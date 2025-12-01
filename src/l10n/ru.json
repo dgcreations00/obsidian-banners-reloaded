@@ -79,7 +79,7 @@
   "MODAL_CONVERSION_LOG_ERROR": "❌ Ошибка в: ",
   "MODAL_CONVERSION_PROGRESS": "Обрабатываю {0} / {1} файлов...",
   "MODAL_CONVERSION_DONE_BAR": "Готов!",
-  "MODAL_CONVERSION_SUCCESS": "Конвертация завершена! ОБновлено {0} из {1} файлов.",
+  "MODAL_CONVERSION_SUCCESS": "Конвертация завершена! Обновлено {0} из {1} файлов.",
   "MODAL_CONVERSION_SUCCESS_NOTICE": "Конвертация завершена. Обновлено {0} файлов.",
   "MODAL_CONVERSION_DONE_BUTTON": "Завершить",
   "ERROR_NO_CONTAINER": "Banner Plugin: Не удалось найти контейнер заметки, чтобы вставить баннер.",
@@ -88,6 +88,6 @@
   "ERROR_SAVING_POSITION": "Ошибка сохранения позиции во frontmatter {0}:",
   "ERROR_PROCESSING_FILE": "Ошибка обработки файла {0}:",
   "ERROR_UNKNOWN": "Неизвестная ошибка при загрузке баннера.",
-  "PLUGIN_LOAD_START": "[Banners Reloaded] v{0}: Инициализция",
-  "PLUGIN_LOAD_SUCCESS": "[Banners Reloaded] v{0}: Инициализция завершена за {1}с"
+  "PLUGIN_LOAD_START": "[Banners Reloaded] v{0}: Инициализация",
+  "PLUGIN_LOAD_SUCCESS": "[Banners Reloaded] v{0}: Инициализация завершена за {1}с"
 }
