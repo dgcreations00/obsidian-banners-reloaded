@@ -1,10 +1,12 @@
 import { moment } from 'obsidian';
 import en from './l10n/en.json';
 import es from './l10n/es.json';
+import ru from './l10n/ru.json';
 
 const locales: Record<string, typeof en> = {
   en,
   es,
+  ru,
 };
 
 let translations: typeof en;
