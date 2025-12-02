@@ -13,28 +13,34 @@ export default defineConfig(
   },
 
   eslint.configs.recommended,
-  ...tseslint.configs.recommended,
-  ...svelte.configs['flat/recommended'],
-  prettier,
 
   {
     languageOptions: {
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
+      globals: { ...globals.browser, ...globals.node },
     },
   },
+
   {
-    files: ['**/*.svelte'],
+    files: ['**/*.{ts,svelte}'],
+
+    extends: [...tseslint.configs.recommendedTypeChecked, ...svelte.configs['flat/recommended']],
+
     languageOptions: {
       parserOptions: {
-        parser: tseslint.parser,
+        project: './tsconfig.eslint.json',
+        tsconfigRootDir: import.meta.dirname,
+        extraFileExtensions: ['.svelte'],
       },
     },
-  },
-  {
+
     rules: {
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      '@typescript-eslint/restrict-template-expressions': 'error',
+      '@typescript-eslint/no-base-to-string': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -47,4 +53,15 @@ export default defineConfig(
       ],
     },
   },
+
+  {
+    files: ['**/*.svelte'],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+    },
+  },
+
+  prettier,
 );
