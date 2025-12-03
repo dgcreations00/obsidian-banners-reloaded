@@ -2,6 +2,7 @@ import { App, MarkdownView, TFile, WorkspaceLeaf, Platform, MarkdownPostProcesso
 import { mount, unmount, SvelteComponent } from 'svelte';
 import Banner from './BannerComponent.svelte';
 import type { BannersReloadedSettings } from '../settings/settings';
+import type { BannerStyle } from '../settings/settings';
 import { t } from '../i18n';
 
 function debounce<T extends (...args: never[]) => never>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -157,6 +158,8 @@ private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
           errorMessage: errorMessage,
           initialY: otherProps.initialY,
           height: otherProps.height,
+          bannerStyle: otherProps.style,
+          contentMargin: otherProps.contentMargin, 
           headerText: headerData.text,
           headerIcon: headerData.icon,
           headerHAlign: headerData.hAlign,
@@ -384,7 +387,11 @@ private getHeaderData(file: TFile): {
 
     const positionProperty = `${fmProperty}_y`;
     const initialY = frontmatter?.[positionProperty] ?? '50%';
-    return { height, initialY, positionProperty };
+    const styleProperty = `${fmProperty}_style`;
+    const style: BannerStyle = frontmatter?.[styleProperty] || this.settings.bannerStyle || 'solid';
+    const marginProperty = `${fmProperty}_content_margin`;
+    const contentMargin = frontmatter?.[marginProperty] ?? this.settings.contentMargin ?? 0;
+    return { height, initialY, positionProperty, style, contentMargin };
   }
 
   private getEmbedContext(

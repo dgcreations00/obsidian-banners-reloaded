@@ -1,6 +1,7 @@
 <script lang="ts">
   import Header from './Header.svelte';
   import { t } from '../i18n';
+  import type { BannerStyle } from '../settings/settings';
 
   export let imagePath: string;
   export let errorMessage: string | undefined = undefined;
@@ -17,30 +18,50 @@
   export let headerTitleSize: string = '1.2em';
   export let headerIconSize: string = '1.5em';
   export let isDraggable: boolean = true;
+  export let bannerStyle: BannerStyle = 'solid';
+  export let contentMargin: number = 0;
 
+  let headerHeight = 0;
+  let safeMargin = 0;
   let isDragging = false;
   let startMouseY: number;
   let startImageY: number;
-  let currentY: number;
   let bannerContainer: HTMLElement;
+  let currentY: number = parseFloat(String(initialY || '50%'));
+  let lastInitialY = initialY;
 
   function handleHeaderHeightChange(detail: { height: number; vAlign: string }) {
-    const { height, vAlign } = detail;
-    let marginBottom = '1rem'; // Margen por defecto
-    if (vAlign === 'edge' || vAlign === 'bottom') {
-      const overlap = vAlign === 'edge' ? height / 2 : 0;
-      marginBottom = `${Math.max(0, overlap + 16)}px`;
-    }
-    onLayoutChange({ marginBottom });
+    headerHeight = detail.height;
+    updateLayout();
   }
 
-  $: {
+  function updateLayout() {
+    safeMargin = 0;
+    
+    if (headerVAlign === 'edge' || headerVAlign === 'bottom') {
+      const overlap = headerVAlign === 'edge' ? headerHeight / 2 : 0;
+      safeMargin = Math.max(0, overlap + 16);
+    }
+
+    const finalMargin = safeMargin + Number(contentMargin);
+    onLayoutChange({ marginBottom: `${finalMargin}px` });
+  }
+
+  $: if (contentMargin !== undefined || headerVAlign) {
+    updateLayout();
+  }
+
+  $: if (initialY !== lastInitialY) {
     const normalizedY = String(initialY || '50%')
       .trim()
       .endsWith('%')
       ? String(initialY || '50%')
       : `${initialY || '50%'}`;
-    currentY = parseFloat(normalizedY);
+    
+    if (!isDragging) {
+      currentY = parseFloat(normalizedY);
+    }
+    lastInitialY = initialY;
   }
 
   function handleMouseDown(event: MouseEvent) {
@@ -53,6 +74,7 @@
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
   }
+  
   function handleMouseMove(event: MouseEvent) {
     if (!isDragging || !bannerContainer) return;
     const deltaY = event.clientY - startMouseY;
@@ -60,6 +82,7 @@
     const newY = startImageY - deltaPercent;
     currentY = Math.max(0, Math.min(100, newY));
   }
+
   function handleMouseUp() {
     if (!isDragging) return;
     isDragging = false;
@@ -81,7 +104,17 @@
     tabindex="0"
     style:--banner-height={height}
   >
-    <img src={imagePath} alt="Banner" class="banner-image" style:--object-position-y="{currentY}%" />
+    <img 
+      src={imagePath} 
+      alt="Banner" 
+      class="banner-image" 
+      class:style-gradient={bannerStyle === 'gradient'}
+      class:style-blur={bannerStyle === 'blur'}
+      class:style-swoosh={bannerStyle === 'swoosh'}
+      class:style-swoosh-inverted={bannerStyle === 'swoosh-inverted'}
+      style:--object-position-y="{currentY}%"
+      draggable="false"
+    />
 
     {#if headerText || headerIcon}
       <Header
@@ -143,7 +176,47 @@
     height: 100%;
     object-fit: cover;
     user-select: none;
+    will-change: object-position;
     cursor: default;
+    transition: mask-image 0.3s ease, filter 0.3s ease, clip-path 0.3s ease;
+  }
+  .banner-image.style-gradient {
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      black 0%,
+      black 30%,
+      rgba(0, 0, 0, 0.8) 50%,
+      rgba(0, 0, 0, 0.2) 80%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      black 0%,
+      black 30%,
+      rgba(0, 0, 0, 0.8) 50%,
+      rgba(0, 0, 0, 0.2) 80%,
+      transparent 100%
+    );
+  }
+  .banner-image.style-blur {
+    filter: blur(4px);
+  }
+  .banner-image.style-swoosh {
+    clip-path: ellipse(150% 100% at 50% 0%);
+  }
+  .banner-image.style-swoosh-inverted {
+    -webkit-mask-image: radial-gradient(
+      ellipse 160% 100% at 50% 120%,
+      transparent 0%, 
+      transparent 50%, 
+      black 50.5% 
+    );
+    mask-image: radial-gradient(
+      ellipse 160% 100% at 50% 120%, 
+      transparent 0%, 
+      transparent 50%, 
+      black 50.5%
+    );
   }
   .is-draggable {
     cursor: grab;

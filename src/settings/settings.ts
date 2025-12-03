@@ -16,6 +16,8 @@ interface TagBannerRule {
   tag: string;
   path: string;
 }
+export type BannerStyle = 'solid' | 'gradient' | 'blur' | 'swoosh' | 'swoosh-inverted';
+
 
 export interface BannersReloadedSettings {
   enableBanners: boolean;
@@ -24,6 +26,8 @@ export interface BannersReloadedSettings {
   defaultBannerHeight: string;
   defaultBannerMobileHeight: string;
   embedBannerHeight: string;
+  bannerStyle: BannerStyle;
+  contentMargin: number;
   showDefaultHeaderText: boolean;
   showDefaultHeaderIcon: boolean;
   defaultHeaderIcon: string;
@@ -47,6 +51,8 @@ export const DEFAULT_SETTINGS: BannersReloadedSettings = {
   defaultBannerHeight: '200px',
   defaultBannerMobileHeight: '150px',
   embedBannerHeight: '120px',
+  bannerStyle: 'solid',
+  contentMargin: 0,
   showDefaultHeaderText: true,
   showDefaultHeaderIcon: true,
   defaultHeaderIcon: '',
@@ -231,6 +237,47 @@ export class BannerSettingTab extends PluginSettingTab {
           }),
       );
 
+    new Setting(containerEl)
+      .setName(t('SETTINGS_STYLE_NAME'))
+      .setDesc(t('SETTINGS_STYLE_DESC'))
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption('solid', t('SETTINGS_STYLE_SOLID'))
+          .addOption('gradient', t('SETTINGS_STYLE_GRADIENT'))
+          .addOption('blur', t('SETTINGS_STYLE_BLUR'))
+          .addOption('swoosh', t('SETTINGS_STYLE_SWOOSH'))
+          .addOption('swoosh-inverted', t('SETTINGS_STYLE_SWOOSH_INVERTED'))
+          .setValue(this.plugin.settings.bannerStyle)
+          .onChange(async (value) => {
+            this.plugin.settings.bannerStyle = value as BannerStyle;
+            await this.plugin.saveSettings();
+            this.plugin.bannerManager.refreshAllBanners();
+          }),
+      );
+
+    new Setting(containerEl)
+      .setName(t('SETTINGS_CONTENT_MARGIN_NAME'))
+      .setDesc(t('SETTINGS_CONTENT_MARGIN_DESC'))
+      .addText((text) => {
+        text.inputEl.type = 'number';
+        
+        text
+          .setPlaceholder('0')
+          .setValue(String(this.plugin.settings.contentMargin))
+          .onChange(async (value) => {
+            if (value === '') {
+              this.plugin.settings.contentMargin = 0;
+            } else {
+              const num = parseInt(value);
+              if (!isNaN(num)) {
+                this.plugin.settings.contentMargin = num;
+              }
+            }
+            await this.plugin.saveSettings();
+            this.plugin.bannerManager.refreshAllBanners();
+          });
+      });
+      
     new Setting(containerEl).setName(t('SETTINGS_HEADER_HEADING')).setHeading();
 
     new Setting(containerEl)
