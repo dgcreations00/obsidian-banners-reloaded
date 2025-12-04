@@ -1,7 +1,7 @@
 {
   "name": "banners-reloaded",
   "private": true,
-  "version": "1.1.6",
+  "version": "1.2.0",
   "description": "A simple, fast, and lightweight way to add customizable banners to your notes.",
   "author": "Dani García (https://github.com/dgcreations00)",
   "repository": {
