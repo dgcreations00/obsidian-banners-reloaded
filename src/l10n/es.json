@@ -89,5 +89,14 @@
   "ERROR_PROCESSING_FILE": "Error procesando el archivo {0}:",
   "ERROR_UNKNOWN": "Error desconocido al cargar el banner.",
   "PLUGIN_LOAD_START": "[Banners Reloaded] v{0}: iniciando carga",
-  "PLUGIN_LOAD_SUCCESS": "[Banners Reloaded] v{0}: carga completa en {1}s"
+  "PLUGIN_LOAD_SUCCESS": "[Banners Reloaded] v{0}: carga completa en {1}s",
+  "SETTINGS_STYLE_NAME": "Estilo del banner",
+  "SETTINGS_STYLE_DESC": "Selecciona la apariencia visual del banner.",
+  "SETTINGS_STYLE_SOLID": "Sólido",
+  "SETTINGS_STYLE_GRADIENT": "Degradado (Desvanecer)",
+  "SETTINGS_STYLE_BLUR": "Desenfocado",
+  "SETTINGS_STYLE_SWOOSH": "Curvo (Convexo)",
+  "SETTINGS_STYLE_SWOOSH_INVERTED": "Curvo (Cóncavo)",
+  "SETTINGS_CONTENT_MARGIN_NAME": "Margen de inicio del contenido",
+  "SETTINGS_CONTENT_MARGIN_DESC": "Ajusta el espacio vertical entre el banner y el contenido. Introduce un número en píxeles (sin 'px'). Usa valores negativos para que el texto se superponga al banner."
 }

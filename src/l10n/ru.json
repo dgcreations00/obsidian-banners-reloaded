@@ -89,5 +89,14 @@
   "ERROR_PROCESSING_FILE": "Ошибка обработки файла {0}:",
   "ERROR_UNKNOWN": "Неизвестная ошибка при загрузке баннера.",
   "PLUGIN_LOAD_START": "[Banners Reloaded] v{0}: Инициализация",
-  "PLUGIN_LOAD_SUCCESS": "[Banners Reloaded] v{0}: Инициализация завершена за {1}с"
+  "PLUGIN_LOAD_SUCCESS": "[Banners Reloaded] v{0}: Инициализация завершена за {1}с",
+  "SETTINGS_STYLE_NAME": "Banner style",
+  "SETTINGS_STYLE_DESC": "Select the visual appearance of the banner.",
+  "SETTINGS_STYLE_SOLID": "Solid",
+  "SETTINGS_STYLE_GRADIENT": "Gradient (Fade)",
+  "SETTINGS_STYLE_BLUR": "Blurred",
+  "SETTINGS_STYLE_SWOOSH": "Swoosh (Convex)",
+  "SETTINGS_STYLE_SWOOSH_INVERTED": "Swoosh (Concave)",
+  "SETTINGS_CONTENT_MARGIN_NAME": "Content start margin",
+  "SETTINGS_CONTENT_MARGIN_DESC": "Adjusts the vertical space between the banner and the note content. Enter a number in pixels (without 'px'). Use negative values to make text overlap the banner."
 }

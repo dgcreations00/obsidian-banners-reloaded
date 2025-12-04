@@ -3,6 +3,11 @@
 .cm-scroller {
   flex-direction: column;
 }
+.markdown-preview-sizer,
+.cm-sizer {
+  position: relative;
+  z-index: 1;
+}
 .markdown-preview-view > .banner-wrapper,
 .cm-scroller > .banner-wrapper {
   --banner-page-margin: var(--file-margins);
@@ -10,7 +15,6 @@
   margin-top: calc(-1 * var(--banner-page-margin));
   margin-left: calc(-1 * var(--banner-page-margin));
   margin-right: calc(-1 * var(--banner-page-margin));
-  margin-bottom: var(--banner-page-margin);
 }
 .is-mobile .markdown-preview-view > .banner-wrapper,
 .is-mobile .cm-scroller > .banner-wrapper {

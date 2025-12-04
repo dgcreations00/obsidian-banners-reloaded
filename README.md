@@ -13,6 +13,7 @@ Banners Reloaded offers a simple, fast, and lightweight way to add beautiful and
 - [Configuration Guide](#configuration-guide)
   - [Banner Management](#banner-management)
   - [Note Properties](#note-properties)
+  - [Visual Styling](#visual-styling)
   - [Banner Header](#banner-header)
   - [Additional Contexts](#additional-contexts)
   - [Banners by Tag](#banners-by-tag)
@@ -29,6 +30,8 @@ Banners Reloaded offers a simple, fast, and lightweight way to add beautiful and
 ## Features
 
 - **Powerful Banner Hierarchy:** Control which banner is displayed with a clear priority: **Specific Note > Tag Banner > Global Banner**.
+- **Visual Styles:** Choose from 5 different visual styles, including gradients, blurs, and curved "swoosh" effects.
+- **Content Positioning:** Fine-tune where your note's text starts using the Content Margin setting. Overlap text onto the banner for a modern look.
 - **Interactive Vertical Alignment:** Vertically drag any banner to focus on the perfect part of the image. The position is automatically saved to the note's frontmatter.
 - **Overlay Headers:** Add titles and icons over your banners, with full control over their vertical and horizontal alignment, decoration, and size.
 - **Powerful Header Templating:** Dynamically display content in your headers. Use {{filename}} for the note's name, or insert any frontmatter property like {{status}} or {{author}}. It even resolves nested variables (e.g., if your frontmatter has title: "Project {{project_name}}").
@@ -78,6 +81,26 @@ Access the settings via `Settings > Community Plugins > Banners Reloaded`.
 - **Frontmatter Property:** The name of the main YAML property. The default is `banner`. All other override properties will use this name as a prefix (e.g., `banner_y`, `banner_height`).
 - **Default banner height:** The CSS height for banners in the main desktop view (e.g., `200px`, `30vh`).
 - **Default mobile banner height:** The height for the main view on mobile devices.
+
+### Visual Styling
+
+Customize the look and feel of your banners.
+
+- **Banner Style:** Select the visual effect applied to the banner image.
+    - **Solid:** The standard, rectangular cut.
+      ![Solid Style](./public/style_solid.png)
+    - **Gradient (Fade):** Smoothly fades the bottom of the banner into transparency.
+      ![Gradient Style](./public/style_gradient.png)
+    - **Blurred:** Applies a blur effect. Great for low-res images or minimizing distractions.
+      ![Blur Style](./public/style_blur.png)
+    - **Swoosh (Convex):** A modern, curved bottom edge.
+      ![Swoosh Style](./public/style_swoosh.png)
+    - **Swoosh (Concave):** An inverted curve effect.
+      ![Swoosh Inverted Style](./public/style_swoosh_inverted.png)
+
+- **Content start margin:** Adjust the vertical distance between the banner and the note's text content.
+    - **Positive values:** Add space between the banner and text.
+    - **Negative values (e.g., -50):** Move the text UP to overlap the banner (perfect for use with Gradient or Swoosh styles).
 
 ### Banner Header
 
@@ -157,6 +180,10 @@ banner_icon: false
 # Priority 1: Specific banner for this note (can be local or remote)
 banner: "[[Banners/my-local-banner.png]]"
 
+# Style overrides
+banner_style: "gradient"       # Options: solid, gradient, blur, swoosh, swoosh-inverted
+banner_content_margin: -40     # Overlap text onto the banner
+
 # Custom frontmatter data for the template
 status: "In Progress"
 project_name: "Obsidian Plugin"
@@ -191,6 +218,8 @@ Below are all the properties you can use, assuming the prefix in the settings is
     - Accepts local paths (Strings): `"Banners/my_image.png"`
     - Accepts external URLs: `"https://example.com/image.jpg"`
     - To **disable** a banner, use: `banner: false` or `banner: none`.
+- `banner_style`: The visual style of the banner. Values: `solid`, `gradient`, `blur`, `swoosh`, `swoosh-inverted`.
+- `banner_content_margin`: Adjusts the start position of the note content. Use negative numbers to overlap. (e.g., `-20`).
 - `banner_height`: CSS height for the banner in this note (applies to desktop, embeds, and popovers).
 - `banner_mobile_height`: Specific CSS height for this note on mobile.
 - `banner_y`: The vertical position of the image (from `0%` to `100%`). This is updated when you drag the image.
@@ -241,7 +270,7 @@ If you'd like to translate the plugin into your language, it's easy!
 3. Translate all the string **values** in your new file, but be careful not to change the **keys**.
 4. Open the `src/i18n.ts` file and add your new language:
     - Add the import: `import fr from './l10n/fr.json';`
-    - Add it to the `locales` object: `const locales = { en, es, fr };`
+    - Add it to the `locales` object: `const locales = { en, es, ru, fr };`
 5. Submit a Pull Request with your changes.
 
 Thank you for helping to make Banners Reloaded better!
