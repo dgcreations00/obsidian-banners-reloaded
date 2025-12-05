@@ -123,11 +123,14 @@ private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
     const bannerData = this.getBannerPath(file);
     if (!bannerData) return;
 
+    const isHoverEditor = !!container.closest('.hover-editor');
     const headerData = this.getHeaderData(file);
-    const otherProps = this.getOtherBannerProps(file, !!embedType);
+    const desktopProps = this.getOtherBannerProps(file, false);
+    const embedProps = this.getOtherBannerProps(file, true);
+    const baseProps = embedType ? embedProps : desktopProps;
+    
     let imageUrl: string | null;
     let errorMessage: string | undefined;
-
     const result = this.getImageUrl(bannerData);
     
     if (result.success) {
@@ -138,6 +141,7 @@ private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
 
     const wrapper = createDiv({ cls: 'banner-wrapper' });
     wrapper.addClass(BANNER_APPLIED_CLASS);
+    
     if (embedType === 'embed') {
       wrapper.addClass('is-real-embed');
     } else if (embedType === 'popover') {
@@ -156,10 +160,11 @@ private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
         props: {
           imagePath: imageUrl,
           errorMessage: errorMessage,
-          initialY: otherProps.initialY,
-          height: otherProps.height,
-          bannerStyle: otherProps.style,
-          contentMargin: otherProps.contentMargin, 
+          initialY: baseProps.initialY,
+          bannerStyle: baseProps.style,
+          contentMargin: baseProps.contentMargin, 
+          height: desktopProps.height,
+          embedHeight: embedProps.height,
           headerText: headerData.text,
           headerIcon: headerData.icon,
           headerHAlign: headerData.hAlign,
@@ -167,14 +172,16 @@ private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
           headerDecor: headerData.decor,
           headerTitleSize: headerData.titleSize,
           headerIconSize: headerData.iconSize,
-          isDraggable: !embedType,
+          isEmbed: !!embedType,
+          isHoverEditor: isHoverEditor,
+          isDraggable: !embedType && !isHoverEditor, 
           onLayoutChange: (event) => {
             wrapper.style.marginBottom = event.marginBottom;
           },
-          onSavePosition: embedType
+          onSavePosition: (embedType || isHoverEditor)
             ? () => {}
             : (event) => {
-                void this.saveBannerPosition(file, otherProps.positionProperty, event.y);
+                void this.saveBannerPosition(file, baseProps.positionProperty, event.y);
               },
         },
       }) as SvelteComponent;
@@ -398,14 +405,22 @@ private getHeaderData(file: TFile): {
     el: HTMLElement,
     ctx: MarkdownPostProcessorContext,
   ): { isEmbed: boolean; type?: 'embed' | 'popover' } {
-    if (el.closest('.popover')) return { isEmbed: true, type: 'popover' };
+    const popover = el.closest('.popover');
+    if (popover) {
+      if (popover.hasClass('hover-editor')) {
+        return { isEmbed: false };
+      }
+      return { isEmbed: true, type: 'popover' };
+    }
+
     const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
     if (activeView && activeView.file && activeView.file.path !== ctx.sourcePath)
       return { isEmbed: true, type: 'embed' };
+      
     return { isEmbed: false };
   }
 
-private getImageUrl(
+  private getImageUrl(
     bannerData: { path: string; file: TFile | null },
   ): { success: true; url: string; error: null } | { success: false; error: string } {
     const { path, file } = bannerData;

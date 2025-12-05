@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount, onDestroy } from 'svelte';
   import Header from './Header.svelte';
   import { t } from '../i18n';
   import type { BannerStyle } from '../settings/settings';
@@ -8,6 +9,9 @@
   export let initialY: string = '50%';
   export let onSavePosition: (position: { y: string }) => void;
   export let height: string = '200px';
+  export let embedHeight: string = '100px';
+  export let isHoverEditor: boolean = false;
+  export let isEmbed: boolean = false;
   export let onLayoutChange: (detail: { marginBottom: string }) => void;
 
   export let headerText: string | undefined = undefined;
@@ -29,6 +33,39 @@
   let bannerContainer: HTMLElement;
   let currentY: number = parseFloat(String(initialY || '50%'));
   let lastInitialY = initialY;
+  let currentHeight = height;
+  let isSmallContainer = false;
+
+  let resizeObserver: ResizeObserver;
+
+  onMount(() => {
+    if (isHoverEditor && bannerContainer) {
+      resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const width = entry.contentRect.width;
+          const isSmall = width < 600;
+          
+          if (isSmall !== isSmallContainer) {
+            isSmallContainer = isSmall;
+            currentHeight = isSmall ? embedHeight : height;
+            const wrapper = bannerContainer.parentElement;
+            if (wrapper) {
+              if (isSmall) wrapper.classList.add('is-popover-embed');
+              else wrapper.classList.remove('is-popover-embed');
+            }
+          }
+        }
+      });
+      resizeObserver.observe(document.body);
+      resizeObserver.observe(bannerContainer); 
+    } else if (isEmbed) {
+       currentHeight = embedHeight;
+    }
+  });
+
+  onDestroy(() => {
+    if (resizeObserver) resizeObserver.disconnect();
+  });
 
   function handleHeaderHeightChange(detail: { height: number; vAlign: string }) {
     headerHeight = detail.height;
@@ -102,7 +139,7 @@
     on:mousedown={handleMouseDown}
     role="button"
     tabindex="0"
-    style:--banner-height={height}
+    style:--banner-height={currentHeight} 
   >
     <img 
       src={imagePath} 
