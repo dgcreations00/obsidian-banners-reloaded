@@ -19,13 +19,19 @@
 /* Readable line length on */
 body.banners-reloaded .markdown-source-view.mod-cm6.is-readable-line-width .cm-scroller > .banner-wrapper,
 body.banners-reloaded .markdown-preview-view.is-readable-line-width > .banner-wrapper {
-  --banner-x-off: var(--file-margins-x, 0px);
-  --banner-y-off: var(--file-margins-y, 0px);
-
-  width: calc(100% + (2 * var(--banner-x-off)));
-  margin-left: calc(-1 * var(--banner-x-off));
-  margin-right: calc(-1 * var(--banner-x-off));
-  margin-top: calc(-1 * var(--banner-y-off));
+  /* 
+     CADENA DE FALLBACKS:
+     1. --file-margins-x (Obsidian 1.11)
+     2. --file-margins-inline (Tema Baseline/Pixel)
+     3. --file-margins (Legacy Obsidian / Si es un solo número)
+     4. 0px (Seguridad)
+  */
+  --banner-x: var(--file-margins-x, var(--file-margins-inline, var(--file-margins, 0px)));
+  --banner-y: var(--file-margins-y, var(--file-margins-block, var(--file-margins, 0px)));
+  width: calc(100% + (2 * var(--banner-x)));
+  margin-left: calc(-1 * var(--banner-x));
+  margin-right: calc(-1 * var(--banner-x));
+  margin-top: calc(-1 * var(--banner-y));
 }
 /* TODO: Setting for this */
 /*
@@ -42,24 +48,38 @@ body.banners-reloaded .markdown-preview-view.is-readable-line-width > .banner-wr
 /* Readable line length off */
 body.banners-reloaded .markdown-preview-view:not(.is-readable-line-width) > .banner-wrapper,
 body.banners-reloaded .markdown-source-view.mod-cm6:not(.is-readable-line-width) .cm-scroller > .banner-wrapper {
-  --banner-x-off: var(--file-margins-x, 0px);
-  --banner-y-off: var(--file-margins-y, 0px);
-
-  width: calc(100% + (2 * var(--banner-x-off)));
-  margin-left: calc(-1 * var(--banner-x-off));
-  margin-right: calc(-1 * var(--banner-x-off));
-  margin-top: calc(-1 * var(--banner-y-off));
+  /* 
+     CADENA DE FALLBACKS:
+     1. --file-margins-x (Obsidian 1.11)
+     2. --file-margins-inline (Tema Baseline/Pixel)
+     3. --file-margins (Legacy Obsidian / Si es un solo número)
+     4. 0px (Seguridad)
+  */
+  --banner-x: var(--file-margins-x, var(--file-margins-inline, var(--file-margins, 0px)));
+  --banner-y: var(--file-margins-y, var(--file-margins-block, var(--file-margins, 0px)));
+  width: calc(100% + (2 * var(--banner-x)));
+  margin-left: calc(-1 * var(--banner-x));
+  margin-right: calc(-1 * var(--banner-x));
+  margin-top: calc(-1 * var(--banner-y));
 }
 
 /* === LEGACY === */
 
-body.banners-reloaded-legacy .markdown-preview-view > .banner-wrapper,
-body.banners-reloaded-legacy .cm-scroller > .banner-wrapper {
-  --banner-page-margin: var(--file-margins);
-  width: calc(100% + 2 * var(--banner-page-margin));
-  margin-top: calc(-1 * var(--banner-page-margin));
-  margin-left: calc(-1 * var(--banner-page-margin));
-  margin-right: calc(-1 * var(--banner-page-margin));
+body.banners-reloaded-legacy .markdown-source-view.mod-cm6 .cm-scroller > .banner-wrapper,
+body.banners-reloaded-legacy .markdown-preview-view > .banner-wrapper {
+  /* 
+     CADENA DE FALLBACKS:
+     1. --file-margins-x (Obsidian 1.11)
+     2. --file-margins-inline (Tema Baseline/Pixel)
+     3. --file-margins (Legacy Obsidian / Si es un solo número)
+     4. 0px (Seguridad)
+  */
+  --banner-x: var(--file-margins-x, var(--file-margins-inline, var(--file-margins, 0px)));
+  --banner-y: var(--file-margins-y, var(--file-margins-block, var(--file-margins, 0px)));
+  width: calc(100% + (2 * var(--banner-x)));
+  margin-left: calc(-1 * var(--banner-x));
+  margin-right: calc(-1 * var(--banner-x));
+  margin-top: calc(-1 * var(--banner-y));
 }
 
 body.banners-reloaded-legacy .markdown-preview-view .internal-embed .banner-wrapper.is-real-embed,
