@@ -7,32 +7,148 @@
 .cm-sizer {
   position: relative;
   z-index: 1;
+  background-color: transparent;
 }
-.markdown-preview-view > .banner-wrapper,
-.cm-scroller > .banner-wrapper {
+.banner-wrapper {
+  position: relative;
+  z-index: 0;
+}
+
+/* === 1.11 === */
+
+/* Readable line length on */
+body.banners-reloaded .markdown-source-view.mod-cm6.is-readable-line-width .cm-scroller > .banner-wrapper,
+body.banners-reloaded .markdown-preview-view.is-readable-line-width > .banner-wrapper {
+  --banner-x-off: var(--file-margins-x, 0px);
+  --banner-y-off: var(--file-margins-y, 0px);
+
+  width: calc(100% + (2 * var(--banner-x-off)));
+  margin-left: calc(-1 * var(--banner-x-off));
+  margin-right: calc(-1 * var(--banner-x-off));
+  margin-top: calc(-1 * var(--banner-y-off));
+}
+/* TODO: Setting for this */
+/*
+body.banners-reloaded .markdown-source-view.mod-cm6.is-readable-line-width .cm-scroller > .banner-wrapper,
+body.banners-reloaded .markdown-preview-view.is-readable-line-width > .banner-wrapper {
+  --banner-y-off: var(--file-margins-y, 0px);
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: calc(-1 * var(--banner-y-off));
+}
+*/
+
+/* Readable line length off */
+body.banners-reloaded .markdown-preview-view:not(.is-readable-line-width) > .banner-wrapper,
+body.banners-reloaded .markdown-source-view.mod-cm6:not(.is-readable-line-width) .cm-scroller > .banner-wrapper {
+  --banner-x-off: var(--file-margins-x, 0px);
+  --banner-y-off: var(--file-margins-y, 0px);
+
+  width: calc(100% + (2 * var(--banner-x-off)));
+  margin-left: calc(-1 * var(--banner-x-off));
+  margin-right: calc(-1 * var(--banner-x-off));
+  margin-top: calc(-1 * var(--banner-y-off));
+}
+
+/* === LEGACY === */
+
+body.banners-reloaded-legacy .markdown-preview-view > .banner-wrapper,
+body.banners-reloaded-legacy .cm-scroller > .banner-wrapper {
   --banner-page-margin: var(--file-margins);
   width: calc(100% + 2 * var(--banner-page-margin));
   margin-top: calc(-1 * var(--banner-page-margin));
   margin-left: calc(-1 * var(--banner-page-margin));
   margin-right: calc(-1 * var(--banner-page-margin));
 }
-.is-mobile .markdown-preview-view > .banner-wrapper,
-.is-mobile .cm-scroller > .banner-wrapper {
+
+body.banners-reloaded-legacy .markdown-preview-view .internal-embed .banner-wrapper.is-real-embed,
+body.banners-reloaded-legacy .cm-scroller .internal-embed .banner-wrapper.is-real-embed {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+}
+
+body.banners-reloaded-legacy .is-mobile .markdown-preview-view > .banner-wrapper,
+body.banners-reloaded-legacy .is-mobile .cm-scroller > .banner-wrapper {
   --banner-page-margin: var(--size-4-5);
   margin-top: calc(-1 * var(--size-4-2));
 }
-.banner-wrapper.is-real-embed {
-  --embed-padding: var(--file-margins);
-  width: calc(100% + 1 * var(--embed-padding));
+
+/* === EMBED & POPOVER === */
+
+body.banners-reloaded .internal-embed .banner-wrapper.is-real-embed,
+body.banners-reloaded-legacy .internal-embed .banner-wrapper.is-real-embed {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
 }
-.banner-wrapper.is-popover-embed {
-  --popover-padding: var(--file-margins);
+
+body.banners-reloaded .banner-wrapper.is-popover-embed,
+body.banners-reloaded-legacy .banner-wrapper.is-popover-embed {
+  --popover-pad: var(--size-4-6, 24px); 
+  width: calc(100% + 2 * var(--popover-pad));
+  margin-left: calc(-1 * var(--popover-pad));
+  margin-right: calc(-1 * var(--popover-pad));
+  margin-top: calc(-1 * var(--popover-pad));
+  margin-bottom: var(--popover-pad);
+}
+
+/* === MINIMAL THEME FIXES=== */
+
+/* Readable line length on*/
+body.banners-reloaded-minimal-fix .markdown-source-view.mod-cm6.is-readable-line-width .cm-scroller > .banner-wrapper,
+body.banners-reloaded-minimal-fix .markdown-preview-view.is-readable-line-width > .banner-wrapper {
+  --banner-padding-y: var(--size-4-4, 8px);
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: calc(-1 * var(--banner-padding-y));
+}
+/* Readable line length off */
+body.banners-reloaded-minimal-fix .markdown-preview-view:not(.is-readable-line-width) > .banner-wrapper,
+body.banners-reloaded-minimal-fix .markdown-source-view.mod-cm6:not(.is-readable-line-width) .cm-scroller > .banner-wrapper {
+  --banner-padding-x: var(--size-4-12, 48px);
+  --banner-padding-y: var(--size-4-2, 8px);
+  width: calc(100% + 2 * var(--banner-padding-x));
+  margin-left: calc(-1 * var(--banner-padding-x));
+  margin-right: calc(-1 * var(--banner-padding-x));
+  margin-top: calc(-1 * var(--banner-padding-y));
+}
+/* Popover fix */
+body.banners-reloaded-minimal-fix .hover-popover .markdown-preview-view .banner-wrapper.is-popover-embed {
+  --popover-padding: var(--size-4-6, 24px);
   width: calc(100% + 2 * var(--popover-padding));
   margin-left: calc(-1 * var(--popover-padding));
   margin-right: calc(-1 * var(--popover-padding));
   margin-top: calc(-1 * var(--popover-padding));
-  margin-bottom: var(--popover-padding);
 }
+/* Embed fix */
+body.banners-reloaded-minimal-fix .markdown-preview-view .internal-embed .banner-wrapper.is-real-embed,
+body.banners-reloaded-minimal-fix .markdown-source-view.mod-cm6 .internal-embed .banner-wrapper.is-real-embed {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+}
+/* Cursor fix */
+body.banners-reloaded-minimal-fix .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable .banner-image {
+  cursor: grab;
+}
+body.banners-reloaded-minimal-fix .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable.is-dragging .banner-image {
+  cursor: grabbing;
+}
+body.banners-reloaded-minimal-fix .hover-popover .banner-container:not(.is-draggable) .banner-image {
+  cursor: default;
+}
+body.banners-reloaded-minimal-fix .workspace-leaf-content .view-content .internal-embed .banner-wrapper .banner-container:not(.is-draggable) img.banner-image {
+  cursor: default;
+}
+
+/* === SETTINGS === */
+
 .setting-item.is-draggable {
   cursor: grab;
 }
@@ -111,55 +227,4 @@
   display: block;
   text-align: center;
   margin-bottom: 1em;
-}
-
-/* === MINIMAL THEME FIXES=== */
-
-/* Readable line length on*/
-body.banners-reloaded-minimal-fix .markdown-source-view.mod-cm6.is-readable-line-width .cm-scroller > .banner-wrapper,
-body.banners-reloaded-minimal-fix .markdown-preview-view.is-readable-line-width > .banner-wrapper {
-  --banner-padding-y: var(--size-4-4, 8px);
-  width: 100%;
-  margin-left: 0;
-  margin-right: 0;
-  margin-top: calc(-1 * var(--banner-padding-y));
-}
-/* Readable line length off */
-body.banners-reloaded-minimal-fix .markdown-preview-view:not(.is-readable-line-width) > .banner-wrapper,
-body.banners-reloaded-minimal-fix .markdown-source-view.mod-cm6:not(.is-readable-line-width) .cm-scroller > .banner-wrapper {
-  --banner-padding-x: var(--size-4-12, 48px);
-  --banner-padding-y: var(--size-4-2, 8px);
-  width: calc(100% + 2 * var(--banner-padding-x));
-  margin-left: calc(-1 * var(--banner-padding-x));
-  margin-right: calc(-1 * var(--banner-padding-x));
-  margin-top: calc(-1 * var(--banner-padding-y));
-}
-/* Popover fix */
-body.banners-reloaded-minimal-fix .hover-popover .markdown-preview-view .banner-wrapper.is-popover-embed {
-  --popover-padding: var(--size-4-6, 24px);
-  width: calc(100% + 2 * var(--popover-padding));
-  margin-left: calc(-1 * var(--popover-padding));
-  margin-right: calc(-1 * var(--popover-padding));
-  margin-top: calc(-1 * var(--popover-padding));
-}
-/* Embed fix */
-body.banners-reloaded-minimal-fix .markdown-preview-view .internal-embed .banner-wrapper.is-real-embed,
-body.banners-reloaded-minimal-fix .markdown-source-view.mod-cm6 .internal-embed .banner-wrapper.is-real-embed {
-  width: 100%;
-  margin-left: 0;
-  margin-right: 0;
-  margin-top: 0;
-}
-/* Cursor fix */
-body.banners-reloaded-minimal-fix .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable .banner-image {
-  cursor: grab;
-}
-body.banners-reloaded-minimal-fix .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable.is-dragging .banner-image {
-  cursor: grabbing;
-}
-body.banners-reloaded-minimal-fix .hover-popover .banner-container:not(.is-draggable) .banner-image {
-  cursor: default;
-}
-body.banners-reloaded-minimal-fix .workspace-leaf-content .view-content .internal-embed .banner-wrapper .banner-container:not(.is-draggable) img.banner-image {
-  cursor: default;
 }

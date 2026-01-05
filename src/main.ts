@@ -1,5 +1,5 @@
 import './styles.css';
-import { MarkdownView, Plugin } from 'obsidian';
+import { MarkdownView, Plugin, requireApiVersion } from 'obsidian';
 import { BannerManager } from './banner/BannerManager';
 import { BannerSettingTab, DEFAULT_SETTINGS, type BannersReloadedSettings } from './settings/settings';
 import { postProcessorCallback } from './banner/postProcessor';
@@ -18,6 +18,16 @@ export default class BannersReloaded extends Plugin {
     }
   }
 
+  private _handleVersionStyling() {
+    if (requireApiVersion("1.11.0")) {
+      document.body.classList.add('banners-reloaded');
+      document.body.classList.remove('banners-reloaded-legacy');
+    } else {
+      document.body.classList.add('banners-reloaded-legacy');
+      document.body.classList.remove('banners-reloaded');
+    }
+  }
+  
   async onload() {
     loadLanguage();
 
@@ -49,13 +59,14 @@ export default class BannersReloaded extends Plugin {
 
     this.registerEvent(
       this.app.workspace.on('layout-change', () => {
-        const activeLeaf = this.app.workspace.getActiveViewOfType(MarkdownView)?.leaf;
-        if (activeLeaf) {
-          this.bannerManager.updateBannerForLeaf(activeLeaf);
-        }
+        this.app.workspace.getLeavesOfType('markdown').forEach((leaf) => {
+          if (leaf.view instanceof MarkdownView) {
+            this.bannerManager.updateBannerForLeaf(leaf);
+          }
+        });
       }),
     );
-
+    
     this.registerMarkdownPostProcessor((el, ctx) => {
       postProcessorCallback(this, el, ctx);
     });
@@ -67,8 +78,10 @@ export default class BannersReloaded extends Plugin {
     );
     
     this._handleThemeChange();
+    this._handleVersionStyling();
 
     this.registerEvent(this.app.workspace.on('css-change', () => this._handleThemeChange()));
+    this.registerEvent(this.app.workspace.on('css-change', () => this._handleVersionStyling()));
   }
 
   onunload() {
