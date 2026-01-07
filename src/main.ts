@@ -59,11 +59,10 @@ export default class BannersReloaded extends Plugin {
 
     this.registerEvent(
       this.app.workspace.on('layout-change', () => {
-        this.app.workspace.getLeavesOfType('markdown').forEach((leaf) => {
-          if (leaf.view instanceof MarkdownView) {
-            this.bannerManager.updateBannerForLeaf(leaf);
-          }
-        });
+        const activeLeaf = this.app.workspace.getActiveViewOfType(MarkdownView)?.leaf;
+        if (activeLeaf) {
+          this.bannerManager.updateBannerForLeaf(activeLeaf);
+        }
       }),
     );
     
