@@ -167,6 +167,19 @@ body.banners-reloaded-minimal-fix .workspace-leaf-content .view-content .interna
   cursor: default;
 }
 
+/* === EXPORT COMPATIBILITY === */
+
+.banner-wrapper.is-export-banner {
+  width: 100% !important;
+  margin: 0 !important;
+  border-radius: var(--banner-image-radius, 0px);
+  overflow: visible;
+}
+.is-export-banner .banner-image {
+  position: relative;
+  display: block;
+}
+
 /* === SETTINGS === */
 
 .setting-item.is-draggable {
