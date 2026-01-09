@@ -149,7 +149,7 @@
       class:style-blur={bannerStyle === 'blur'}
       class:style-swoosh={bannerStyle === 'swoosh'}
       class:style-swoosh-inverted={bannerStyle === 'swoosh-inverted'}
-      style:--object-position-y="{currentY}%"
+      style="object-position: 50% {currentY}%;"
       draggable="false"
     />
 
@@ -208,7 +208,6 @@
     word-break: break-all;
   }
   .banner-image {
-    object-position: 50% var(--object-position-y, 50%);
     width: 100%;
     height: 100%;
     object-fit: cover;
