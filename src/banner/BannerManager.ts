@@ -18,7 +18,7 @@ const BANNER_APPLIED_CLASS = 'banner-plugin-applied';
 export class BannerManager {
   private app: App;
   private settings: BannersReloadedSettings;
-  private leafBannerMap = new Map<WorkspaceLeaf, { banner: SvelteComponent; wrapper: HTMLElement; path: string }>();
+  private leafBannerMap = new Map<WorkspaceLeaf, { banner: SvelteComponent; wrapper: HTMLElement }>();
   private embeddedBannerMap = new Map<string, { banner: SvelteComponent; wrapper: HTMLElement }>();
 
   private scheduleLeafUpdate: (leaf: WorkspaceLeaf) => void;
@@ -84,36 +84,34 @@ export class BannerManager {
   }
 
   private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
-    if (!(leaf.view instanceof MarkdownView)) return;
-
-    const view = leaf.view;
-    const file = view.file;
-    if (!file) return;
-
-    const mode = view.getMode();
-    let container: HTMLElement | null = null;
-    if (mode === 'preview') {
-      container = view.previewMode.containerEl.querySelector('.markdown-preview-view');
-    } else {
-      container = view.contentEl.querySelector('.cm-scroller');
-    }
-
-    if (!container) {
-      setTimeout(() => this._updateBannerForLeafNow(leaf), 100);
-      return;
-    }
-
-    const existingEntry = this.leafBannerMap.get(leaf);
-
-    if (existingEntry) {
-      if (existingEntry.path !== file.path || existingEntry.wrapper.parentElement !== container) {
-        this.removeBannerFromLeaf(leaf);
-      } else {
+    setTimeout(() => {
+      if (!(leaf.view instanceof MarkdownView)) {
+        document.body.classList.remove('banners-plugin-active');
         return;
       }
-    }
-
-    this.createBanner(leaf, file, container, false);
+      
+      if (this.leafBannerMap.has(leaf)) {
+        this.removeBannerFromLeaf(leaf);
+      }
+      
+      const file = leaf.view.file;
+      if (!file) return;
+  
+      const view = leaf.view;
+      let container: HTMLElement | null = null;
+  
+      if (view.getMode() === 'preview') {
+        container = view.previewMode.containerEl.querySelector('.markdown-preview-view');
+      } else {
+        container = view.contentEl.querySelector<HTMLElement>('.markdown-preview-view, .cm-scroller');
+      }
+  
+      if (!container) {
+        return;
+      }
+  
+      this.createBanner(leaf, file, container, false);
+    }, 50);
   }
 
   private createBanner(
@@ -189,7 +187,7 @@ export class BannerManager {
       }) as SvelteComponent;
 
       if (key instanceof WorkspaceLeaf) {
-        this.leafBannerMap.set(key, { banner, wrapper, path: file.path });
+        this.leafBannerMap.set(key, { banner, wrapper });
       } else {
         this.embeddedBannerMap.set(key, { banner, wrapper });
       }
