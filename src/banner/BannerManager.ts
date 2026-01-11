@@ -20,17 +20,21 @@ export class BannerManager {
   private settings: BannersReloadedSettings;
   private leafBannerMap = new Map<WorkspaceLeaf, { banner: SvelteComponent; wrapper: HTMLElement }>();
   private embeddedBannerMap = new Map<string, { banner: SvelteComponent; wrapper: HTMLElement }>();
+  private leafModeObservers = new Map<WorkspaceLeaf, MutationObserver>();
 
   private scheduleLeafUpdate: (leaf: WorkspaceLeaf) => void;
 
   constructor(app: App, settings: BannersReloadedSettings) {
     this.app = app;
     this.settings = settings;
-    this.scheduleLeafUpdate = debounce(this._updateBannerForLeafNow.bind(this), 100);
+    this.scheduleLeafUpdate = debounce(this._updateBannerForLeafNow.bind(this), 50);
   }
 
   public updateBannerForLeaf(leaf: WorkspaceLeaf | null) {
-    if (leaf) this.scheduleLeafUpdate(leaf);
+    if (leaf) {
+      this.cleanupModeObserver(leaf);
+      this.scheduleLeafUpdate(leaf);
+    }
   }
 
   public processEmbed(el: HTMLElement, ctx: MarkdownPostProcessorContext) {
@@ -67,7 +71,7 @@ export class BannerManager {
 
       // @ts-expect-error: 'containerEl' is an undocumented but necessary property.
       this.createBanner(docId, file, ctx.containerEl, embedContext.type);
-    }, 50);
+    }, 10);
   }
 
   public refreshAllBanners() {
@@ -81,37 +85,86 @@ export class BannerManager {
   public destroyAllBanners() {
     for (const leaf of this.leafBannerMap.keys()) this.removeBannerFromLeaf(leaf);
     for (const docId of this.embeddedBannerMap.keys()) this.removeBannerFromEmbed(docId);
+    for (const observer of this.leafModeObservers.values()) {
+      observer.disconnect();
+    }
+    this.leafModeObservers.clear();
+  }
+
+  private cleanupModeObserver(leaf: WorkspaceLeaf) {
+    const observer = this.leafModeObservers.get(leaf);
+    if (observer) {
+      observer.disconnect();
+      this.leafModeObservers.delete(leaf);
+    }
+  }
+
+  private setupModeObserver(leaf: WorkspaceLeaf) {
+    this.cleanupModeObserver(leaf);
+
+    if (!(leaf.view instanceof MarkdownView)) return;
+
+    const view = leaf.view;
+    const contentEl = view.contentEl;
+
+    const observer = new MutationObserver(() => {
+      const previewView = contentEl.querySelector('.markdown-preview-view');
+      const editorView = contentEl.querySelector('.cm-scroller');
+      
+      if (previewView || editorView) {
+        this.scheduleLeafUpdate(leaf);
+      }
+    });
+
+    observer.observe(contentEl, {
+      childList: true,
+      subtree: true,
+    });
+
+    this.leafModeObservers.set(leaf, observer);
   }
 
   private _updateBannerForLeafNow(leaf: WorkspaceLeaf) {
-    setTimeout(() => {
-      if (!(leaf.view instanceof MarkdownView)) {
-        document.body.classList.remove('banners-plugin-active');
-        return;
-      }
+    if (!(leaf.view instanceof MarkdownView)) {
+      document.body.classList.remove('banners-plugin-active');
+      this.cleanupModeObserver(leaf);
+      return;
+    }
+
+    if (this.leafBannerMap.has(leaf)) {
+      this.removeBannerFromLeaf(leaf);
+    }
+
+    const file = leaf.view.file;
+    if (!file) return;
+
+    const view = leaf.view;
+    let container: HTMLElement | null = null;
+    let attempts = 0;
+    const maxAttempts = 5;
+
+    const findAndCreateBanner = () => {
+      attempts++;
       
-      if (this.leafBannerMap.has(leaf)) {
-        this.removeBannerFromLeaf(leaf);
-      }
-      
-      const file = leaf.view.file;
-      if (!file) return;
-  
-      const view = leaf.view;
-      let container: HTMLElement | null = null;
-  
       if (view.getMode() === 'preview') {
-        container = view.previewMode.containerEl.querySelector('.markdown-preview-view');
+        container = view.previewMode?.containerEl?.querySelector('.markdown-preview-view');
       } else {
-        container = view.contentEl.querySelector<HTMLElement>('.markdown-preview-view, .cm-scroller');
+        container = view.contentEl.querySelector<HTMLElement>('.cm-scroller');
+        if (!container) {
+          container = view.contentEl.querySelector<HTMLElement>('.markdown-preview-view');
+        }
       }
-  
-      if (!container) {
-        return;
+
+      if (container) {
+        this.createBanner(leaf, file, container, false);
+        this.setupModeObserver(leaf);
+      } else if (attempts < maxAttempts) {
+        const delay = 50 * attempts;
+        setTimeout(findAndCreateBanner, delay);
       }
-  
-      this.createBanner(leaf, file, container, false);
-    }, 50);
+    };
+
+    findAndCreateBanner();
   }
 
   private createBanner(
@@ -203,6 +256,7 @@ export class BannerManager {
     void unmount(entry.banner);
     entry.wrapper.remove();
     this.leafBannerMap.delete(leaf);
+    this.cleanupModeObserver(leaf);
   }
 
   private removeBannerFromEmbed(docId: string) {
