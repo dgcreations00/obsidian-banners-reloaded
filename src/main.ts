@@ -9,23 +9,14 @@ export default class BannersReloaded extends Plugin {
   settings: BannersReloadedSettings;
   public bannerManager: BannerManager;
 
-  private _handleThemeChange() {
+  private _applyStyling() {
     const theme = this.app.vault.getConfig('cssTheme');
-    if (theme && theme.toLowerCase() === 'minimal') {
-      document.body.classList.add('banners-reloaded-minimal-fix');
-    } else {
-      document.body.classList.remove('banners-reloaded-minimal-fix');
-    }
-  }
+    const isMinimal = theme && theme.toLowerCase() === 'minimal';
+    document.body.classList.toggle('banners-reloaded-minimal-fix', isMinimal);
 
-  private _handleVersionStyling() {
-    if (requireApiVersion("1.11.0")) {
-      document.body.classList.add('banners-reloaded');
-      document.body.classList.remove('banners-reloaded-legacy');
-    } else {
-      document.body.classList.add('banners-reloaded-legacy');
-      document.body.classList.remove('banners-reloaded');
-    }
+    const hasNewApi = requireApiVersion("1.11.0");
+    document.body.classList.toggle('banners-reloaded', hasNewApi);
+    document.body.classList.toggle('banners-reloaded-legacy', !hasNewApi);
   }
   
   async onload() {
@@ -76,11 +67,10 @@ export default class BannersReloaded extends Plugin {
       t('PLUGIN_LOAD_SUCCESS').replace('{0}', this.manifest.version).replace('{1}', durationInSeconds.toFixed(3)),
     );
     
-    this._handleThemeChange();
-    this._handleVersionStyling();
 
-    this.registerEvent(this.app.workspace.on('css-change', () => this._handleThemeChange()));
-    this.registerEvent(this.app.workspace.on('css-change', () => this._handleVersionStyling()));
+    this._applyStyling();
+
+    this.registerEvent(this.app.workspace.on('css-change', () => this._applyStyling()));
   }
 
   onunload() {
