@@ -133,8 +133,8 @@
 {#if imagePath}
   <div
     class="banner-container"
-    class:is-draggable={isDraggable}
-    class:is-dragging={isDragging}
+    class:banner-is-draggable={isDraggable}
+    class:banner-is-dragging={isDragging}
     bind:this={bannerContainer}
     on:mousedown={handleMouseDown}
     role="button"
@@ -145,10 +145,10 @@
       src={imagePath} 
       alt="Banner" 
       class="banner-image" 
-      class:style-gradient={bannerStyle === 'gradient'}
-      class:style-blur={bannerStyle === 'blur'}
-      class:style-swoosh={bannerStyle === 'swoosh'}
-      class:style-swoosh-inverted={bannerStyle === 'swoosh-inverted'}
+      class:banner-style-gradient={bannerStyle === 'gradient'}  
+      class:banner-style-blur={bannerStyle === 'blur'}          
+      class:banner-style-swoosh={bannerStyle === 'swoosh'}      
+      class:banner-style-swoosh-inverted={bannerStyle === 'swoosh-inverted'} 
       style:--object-position-y="{currentY}%"
       draggable="false"
     />
@@ -172,99 +172,3 @@
     <div class="banner-error-message">{errorMessage || t('ERROR_UNKNOWN')}</div>
   </div>
 {/if}
-
-<style>
-  .banner-container {
-    height: var(--banner-height, 200px);
-    width: 100%;
-    margin-bottom: 0;
-    overflow: visible;
-    border-radius: 0px;
-    position: relative;
-  }
-  .banner-error-container {
-    height: var(--banner-height, 150px);
-    width: 100%;
-    margin-bottom: 1rem;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-
-    border: 2px dashed var(--text-muted);
-    border-radius: 8px;
-    padding: 16px;
-    color: var(--text-muted);
-    text-align: center;
-  }
-  .banner-error-icon {
-    font-size: 1.5em;
-  }
-  .banner-error-message {
-    font-family: var(--font-monospace);
-    font-size: var(--font-ui-smaller);
-    word-break: break-all;
-  }
-  .banner-image {
-    object-position: 50% var(--object-position-y, 50%);
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    user-select: none;
-    will-change: object-position;
-    cursor: default;
-    transition: mask-image 0.3s ease, filter 0.3s ease, clip-path 0.3s ease;
-  }
-  .banner-image.style-gradient {
-    -webkit-mask-image: linear-gradient(
-      to bottom,
-      black 0%,
-      black 30%,
-      rgba(0, 0, 0, 0.8) 50%,
-      rgba(0, 0, 0, 0.2) 80%,
-      transparent 100%
-    );
-    mask-image: linear-gradient(
-      to bottom,
-      black 0%,
-      black 30%,
-      rgba(0, 0, 0, 0.8) 50%,
-      rgba(0, 0, 0, 0.2) 80%,
-      transparent 100%
-    );
-  }
-  .banner-image.style-blur {
-    filter: blur(4px);
-  }
-  .banner-image.style-swoosh {
-    clip-path: ellipse(150% 100% at 50% 0%);
-  }
-  .banner-image.style-swoosh-inverted {
-    -webkit-mask-image: radial-gradient(
-      ellipse 160% 100% at 50% 120%,
-      transparent 0%, 
-      transparent 50%, 
-      black 50.5% 
-    );
-    mask-image: radial-gradient(
-      ellipse 160% 100% at 50% 120%, 
-      transparent 0%, 
-      transparent 50%, 
-      black 50.5%
-    );
-  }
-  .is-draggable {
-    cursor: grab;
-  }
-  .is-draggable .banner-image {
-    cursor: grab;
-  }
-  .is-draggable.is-dragging {
-    cursor: grabbing;
-  }
-  .is-draggable.is-dragging .banner-image {
-    cursor: grabbing;
-  }
-</style>
