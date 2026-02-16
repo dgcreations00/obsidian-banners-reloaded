@@ -5,6 +5,8 @@ import { BannerSettingTab, DEFAULT_SETTINGS, type BannersReloadedSettings } from
 import { postProcessorCallback } from './banner/postProcessor';
 import { loadLanguage, t } from './i18n';
 
+const DEBUG_MODE = false;
+
 export default class BannersReloaded extends Plugin {
   settings: BannersReloadedSettings;
   public bannerManager: BannerManager;
@@ -22,8 +24,10 @@ export default class BannersReloaded extends Plugin {
   async onload() {
     loadLanguage();
 
-    const startTime = performance.now();
-    console.debug(t('PLUGIN_LOAD_START').replace('{0}', this.manifest.version));
+    const startTime = DEBUG_MODE ? performance.now() : 0;
+    if (DEBUG_MODE) {
+      console.debug(t('PLUGIN_LOAD_START').replace('{0}', this.manifest.version));
+    }
 
     await this.loadSettings();
     this.bannerManager = new BannerManager(this.app, this.settings);
@@ -61,12 +65,13 @@ export default class BannersReloaded extends Plugin {
       postProcessorCallback(this, el, ctx);
     });
 
-    const endTime = performance.now();
-    const durationInSeconds = (endTime - startTime) / 1000;
-    console.debug(
-      t('PLUGIN_LOAD_SUCCESS').replace('{0}', this.manifest.version).replace('{1}', durationInSeconds.toFixed(3)),
-    );
-    
+    if (DEBUG_MODE) {
+      const endTime = performance.now();
+      const durationInSeconds = (endTime - startTime) / 1000;
+      console.debug(
+        t('PLUGIN_LOAD_SUCCESS').replace('{0}', this.manifest.version).replace('{1}', durationInSeconds.toFixed(3)),
+      );
+    }
 
     this._applyStyling();
 
