@@ -1,4 +1,4 @@
-import { moment } from 'obsidian';
+import { getLanguage } from 'obsidian';
 import en from './l10n/en.json';
 import es from './l10n/es.json';
 import ru from './l10n/ru.json';
@@ -12,7 +12,7 @@ const locales: Record<string, typeof en> = {
 let translations: typeof en;
 
 export const loadLanguage = (): void => {
-  const lang = moment.locale();
+  const lang = getLanguage();
   const langCode = lang.split('-')[0];
   const langStrings = locales[langCode] || en;
   translations = { ...en, ...langStrings };
