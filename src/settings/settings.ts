@@ -514,7 +514,7 @@ export class BannerSettingTab extends PluginSettingTab {
       setting.addExtraButton((button) => {
         button
           .setIcon('trash')
-          .setTooltip('Eliminar regla')
+          .setTooltip(t('SETTINGS_DELETE_RULE'))
           .onClick(async () => {
             this.plugin.settings.tagBanners.splice(index, 1);
             await this.plugin.saveSettings();

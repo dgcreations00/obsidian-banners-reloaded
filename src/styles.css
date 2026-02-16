@@ -1,17 +1,127 @@
-@import "tailwindcss/utilities";
-
-.cm-scroller {
+.cm-scroller.banner-view-active {
   flex-direction: column;
 }
-.markdown-preview-sizer,
-.cm-sizer {
+
+.banner-view-active .markdown-preview-sizer,
+.banner-view-active .cm-sizer {
   position: relative;
   z-index: 1;
   background-color: transparent;
 }
+
+
 .banner-wrapper {
   position: relative;
   z-index: 0;
+}
+
+.banner-container {
+  height: var(--banner-height, 200px);
+  width: 100%;
+  margin-bottom: 0;
+  overflow: visible;
+  border-radius: 0px;
+  position: relative;
+}
+
+.banner-error-container {
+  height: var(--banner-height, 150px);
+  width: 100%;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px dashed var(--text-muted);
+  border-radius: 8px;
+  padding: 16px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.banner-error-icon { font-size: 1.5em; }
+.banner-error-message {
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  word-break: break-all;
+}
+
+.banner-image {
+  object-position: 50% var(--object-position-y, 50%);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  will-change: object-position;
+  cursor: default;
+  transition: mask-image 0.3s ease, filter 0.3s ease, clip-path 0.3s ease;
+}
+
+.banner-image.banner-style-gradient {
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 30%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.2) 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 30%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.2) 80%, transparent 100%);
+}
+.banner-image.banner-style-blur { filter: blur(4px); }
+.banner-image.banner-style-swoosh { clip-path: ellipse(150% 100% at 50% 0%); }
+.banner-image.banner-style-swoosh-inverted {
+  -webkit-mask-image: radial-gradient(ellipse 160% 100% at 50% 120%, transparent 0%, transparent 50%, black 50.5%);
+  mask-image: radial-gradient(ellipse 160% 100% at 50% 120%, transparent 0%, transparent 50%, black 50.5%);
+}
+
+.banner-container.banner-is-draggable { cursor: grab; }
+.banner-container.banner-is-draggable .banner-image { cursor: grab; }
+.banner-container.banner-is-dragging { cursor: grabbing; }
+.banner-container.banner-is-dragging .banner-image { cursor: grabbing; }
+
+.banner-header-wrapper {
+  position: absolute;
+  display: flex;
+  max-width: 90%;
+  --transform-x: 0;
+  --transform-y: 0;
+  transform: translate(var(--transform-x), var(--transform-y));
+}
+.banner-v-top { top: 16px; }
+.banner-v-center { top: 50%; --transform-y: -50%; }
+.banner-v-bottom { bottom: 16px; }
+.banner-v-edge { bottom: 0; --transform-y: 50%; }
+
+.banner-h-left { left: 30px; }
+.banner-h-center { left: 50%; --transform-x: -50%; }
+.banner-h-right { right: 30px; justify-content: flex-end; }
+
+.banner-header-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  color: white;
+}
+.banner-decor-shadow { filter: drop-shadow(0 1px 3px rgb(0 0 0 / 0.6)); }
+.banner-decor-border {
+  -webkit-text-stroke: 1px var(--background-primary);
+  paint-order: stroke fill;
+}
+
+.banner-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: var(--icon-size, 1.5em);
+}
+.banner-icon svg {
+  width: calc(var(--icon-size, 1.5em) * 0.3); /* Ajuste original */
+  height: calc(var(--icon-size, 1.5em) * 0.3);
+}
+
+.banner-header-title {
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 /* === 1.11 & LEGACY === */
@@ -106,33 +216,21 @@ body.banners-reloaded-minimal-fix .markdown-source-view.mod-cm6 .internal-embed 
   margin-top: 0;
 }
 /* Cursor fix */
-body.banners-reloaded-minimal-fix .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable .banner-image {
+body.banners-reloaded-minimal-fix .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.banner-is-draggable .banner-image {
   cursor: grab;
 }
-body.banners-reloaded-minimal-fix .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.is-draggable.is-dragging .banner-image {
+body.banners-reloaded-minimal-fix .workspace-leaf-content[data-type="markdown"] .view-content .banner-container.banner-is-draggable.banner-is-dragging .banner-image {
   cursor: grabbing;
 }
-body.banners-reloaded-minimal-fix .hover-popover .banner-container:not(.is-draggable) .banner-image {
+body.banners-reloaded-minimal-fix .hover-popover .banner-container:not(.banner-is-draggable) .banner-image {
   cursor: default;
 }
-body.banners-reloaded-minimal-fix .workspace-leaf-content .view-content .internal-embed .banner-wrapper .banner-container:not(.is-draggable) img.banner-image {
+body.banners-reloaded-minimal-fix .workspace-leaf-content .view-content .internal-embed .banner-wrapper .banner-container:not(.banner-is-draggable) img.banner-image {
   cursor: default;
 }
 
 /* === SETTINGS === */
 
-.setting-item.is-draggable {
-  cursor: grab;
-}
-.setting-item.is-dragging {
-  opacity: 0.5;
-  background-color: var(--background-modifier-hover);
-  cursor: grabbing;
-}
-.setting-item.drag-over {
-  border-top: 2px solid var(--interactive-accent);
-  margin-top: -2px;
-}
 .banner-suggestion-container {
   display: flex;
   flex-direction: column;

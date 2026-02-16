@@ -192,6 +192,9 @@ export class BannerManager {
       errorMessage = result.error;
     }
 
+    if (!embedType) {
+      container.addClass('banner-view-active');
+    }
     const wrapper = createDiv({ cls: 'banner-wrapper' });
     wrapper.addClass(BANNER_APPLIED_CLASS);
     
@@ -255,6 +258,14 @@ export class BannerManager {
     if (!entry) return;
     void unmount(entry.banner);
     entry.wrapper.remove();
+    
+    // IMPORTANTE: Quitar la clase al eliminar
+    if (leaf.view instanceof MarkdownView) {
+        // Buscamos el contenedor para quitar la clase
+        const container = leaf.view.contentEl.querySelector('.cm-scroller') || leaf.view.contentEl.querySelector('.markdown-preview-view');
+        container?.removeClass('banner-view-active');
+    }
+    
     this.leafBannerMap.delete(leaf);
     this.cleanupModeObserver(leaf);
   }
