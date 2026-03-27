@@ -377,8 +377,8 @@ private getHeaderData(file: TFile): {
 
     const text = this.processHeaderTemplate(textTemplate, frontmatter, file);
     
-    const hAlignProperty = `${fmProperty}_header_h_align`;
-    const vAlignProperty = `${fmProperty}_header_v_align`;
+    const hAlignProperty = `${fmProperty}_header_h`;
+    const vAlignProperty = `${fmProperty}_header_v`;
     const decorProperty = `${fmProperty}_header_decor`;
     const titleSizeProperty = `${fmProperty}_header_title_size`;
     const iconSizeProperty = `${fmProperty}_header_icon_size`;
